@@ -6,6 +6,7 @@ from star import Star
 green = 0, 255, 0
 blue = 0, 0, 255
 red = 255, 0, 0
+yellow = 255, 255, 0
 
 
 ##########################################################################
@@ -21,20 +22,25 @@ class StarSystem(bobj.BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        radius = 2
-        color = None
+        pop = 0
+        homesystem = False
+        popcap = 0
         for star in self.starlist:
-            radius = 2
             for planet in star.planets():
                 if planet.homeplanet:
-                    color = (250, 250, 10)
-                elif planet.population > 0 and not color:
-                    color = green
-                elif planet.popcapacity > 0 and not color:
-                    color = blue
-                radius = max(radius, int(planet.population / 1E9))
-        if not color:
+                    homesystem = True
+                pop += planet.population
+                popcap += planet.popcapacity
+
+        if homesystem:
+            color = yellow
+        elif pop > 0:
+            color = green
+        elif popcap > 0:
+            color = blue
+        else:
             color = red
+        radius = max(2, int(pop / 1E9))
 
         pygame.draw.circle(surf, color, abs(self.location), radius, 0)
 
