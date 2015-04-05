@@ -19,7 +19,7 @@ class Ship(BaseObj):
         if startplanet:
             self.location, self.orbit = startplanet.location, startplanet.orbit
         else:
-            self.location = coord.Coord(0, 0, 0)
+            self.location = coord.Coord(0, 0)
             self.orbit = 0
         if not name:
             self.name = self.GenerateName()
