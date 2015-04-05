@@ -1,0 +1,182 @@
+#!/usr/bin/env python
+#
+# Script to simulate colonial expansion of the galaxy
+
+import sys
+import getopt
+import random
+import time
+import pygame
+
+import ship
+from galaxy import Galaxy
+
+verbose = 0
+
+CARGOSIZE = 100000000
+MAXSHIPS = 500
+BLOWUP = 10000
+mode = 1  # 0=no-recolonisation, 1=recolonisation
+logfile = None
+
+black = 0, 0, 0
+red = 255, 0, 0
+green = 0, 255, 0
+blue = 0, 0, 255
+purple = 255, 0, 255
+white = 255, 255, 255
+
+screensize = screenwidth, screenheight = 800, 800
+galaxysize = galaxyradius, galaxyheight = 100, 1
+
+
+##########################################################################
+def usage():
+    sys.stderr.write("Usage: %s\n" % sys.argv[0])
+
+
+##########################################################################
+class Game():
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode(screensize)
+        self.galaxy = Galaxy(galaxyradius, galaxyheight)
+        self.homeplanet = self.galaxy.findHomePlanet()
+        self.shiplist = []
+        self.year = 0
+
+    ######################################################################
+    def diaspora(self):
+        for shp in self.shiplist[:]:
+            shp.startmonth = shp.location
+            if random.random() * BLOWUP <= 1:
+                print "Ship %s blew up" % str(shp)
+                self.shiplist.remove(shp)
+                continue
+            if not shp.destination:
+                shp.determine_destination(self.galaxy)
+            if not shp.destination:
+                self.shiplist.remove(shp)
+                print "Ship %s gives up" % str(shp)
+                continue
+
+            if shp.location != shp.destination.location:
+                shp.move()
+            else:
+                if shp.loaded:
+                    shp.unload()
+                else:
+                    shp.load()
+                continue
+            if shp.location == shp.startmonth:
+                print "Static Ship=%s (%s)" % (str(shp), shp.startmonth)
+
+    ######################################################################
+    def printPopulatedGalaxy(self):
+        for starsystem in self.galaxy.starsystems():
+            for star in starsystem.stars():
+                for planet in star.planets():
+                    if planet.population > 0:
+                        print "%s: %s (Dist %d)" % (str(planet), planet.population, planet.location.distance(self.homeplanet.location))
+
+    ######################################################################
+    def endOfYear(self):
+        populated = 0
+        popcap = 0
+        totpop = 0
+        for planet in self.galaxy.terrestrials:
+            if planet.population > 0:
+                totpop += planet.population
+                populated += 1
+                if planet.population > CARGOSIZE * 10 and len(self.shiplist) < MAXSHIPS:
+                    for i in range(1):
+                        s = ship.Ship(planet)
+                        s.destination = planet
+                        s.load()
+                        self.shiplist.append(s)
+                if planet.homeplanet:
+                    planet.population -= int(planet.population * 0.03)
+                else:
+                    planet.population += int(planet.population * 0.03)
+                if planet.population > planet.popcapacity:
+                    planet.population = planet.popcapacity
+            if planet.popcapacity > 0:
+                popcap += 1
+        if populated == popcap:       # 100% colonised
+            time.sleep(30)
+        self.year += 1
+
+    ######################################################################
+    def drawText(self, surf, year, numships):
+        populated = 0
+        popcap = 0
+        totpop = 0
+        colpop = 0
+        homepop = 0
+        for planet in self.galaxy.terrestrials:
+            if planet.population > 0:
+                populated += 1
+                totpop += planet.population
+                if not planet.homeplanet:
+                    colpop += planet.population
+                else:
+                    homepop = planet.population
+            if planet.popcapacity > 0:
+                popcap += 1
+        font = pygame.font.Font(None, 20)
+        toprint = [
+            "Year: %d" % year,
+            "Ships: %d" % numships,
+            "Colonised: %d/%d" % (populated, popcap),
+            "%0.2f%%" % (100.0 * populated / popcap),
+            "Population: %0.4fB" % (totpop / 1E9),
+            "Home %0.4fB" % (homepop / 1E9),
+            "Colonists: %0.4fB" % (colpop / 1E9)
+            ]
+        text = font.render(" ".join(toprint), 1, white)
+        textpos = text.get_rect(centerx=surf.get_width() / 2)
+        surf.blit(text, textpos)
+
+    def plot(self):
+        self.screen.fill(black)
+        for ss in self.galaxy.starsystems():
+            ss.Plot(self.screen)
+        for shp in self.shiplist:
+            shp.Plot(self.screen)
+        self.drawText(self.screen, self.year, len(self.shiplist))
+        pygame.display.flip()
+
+
+##########################################################################
+def main():
+    game = Game()
+    try:
+        while(1):
+            game.endOfYear()
+            for i in range(12):
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        raise KeyboardInterrupt
+                game.diaspora()
+                game.plot()
+    except KeyboardInterrupt:
+        game.printPopulatedGalaxy()
+
+##########################################################################
+if __name__ == "__main__":
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "v", ["log="])
+    except getopt.GetoptError, err:
+        sys.stderr.write("Error: %s\n" % str(err))
+        usage()
+        sys.exit(1)
+
+    for o, a in opts:
+        if o == "-v":
+            verbose = 1
+        if o == "--log":
+            logfile = a
+
+    main()
+
+# EOF
