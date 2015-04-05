@@ -21,23 +21,24 @@ class StarSystem(bobj.BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        if not self.basecolor:
-            color = None
-            for star in self.starlist:
-                for planet in star.planets():
-                    if planet.population > 0:
-                        color = green
-                        self.basecolor = color = green
-                        break
-                    elif planet.popcapacity > 0 and not color:
-                        color = blue
-                        break
-            if not color:
-                self.basecolor = color = red
-        else:
-            color = self.basecolor
+        radius = 2
+        color = None
+        for star in self.starlist:
+            radius = 2
+            for planet in star.planets():
+                if planet.population > 0:
+                    color = green
+                    self.basecolor = color = green
+                    radius = max(radius, int(planet.population / 1E8))
+                    print radius
+                    break
+                elif planet.popcapacity > 0 and not color:
+                    color = blue
+                    break
+        if not color:
+            color = red
 
-        pygame.draw.circle(surf, color, abs(self.location), 2, 0)
+        pygame.draw.circle(surf, color, abs(self.location), radius, 0)
 
     ##########################################################################
     def stars(self):
