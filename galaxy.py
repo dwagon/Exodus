@@ -43,7 +43,7 @@ class Galaxy(BaseObj):
         for x in range(width):
             for y in range(height):
                 loc = coord.Coord(x, y)
-                if self.d6(2) >= 11:
+                if self.d6(2) >= 11 and self.d6(2) >= 11 and self.d6(2) >= 11:
                     ss = StarSystem(loc)
                     self.starbits.append(ss)
                     numstars += len(ss)

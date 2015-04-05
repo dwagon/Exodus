@@ -26,15 +26,13 @@ class StarSystem(bobj.BaseObj):
         for star in self.starlist:
             radius = 2
             for planet in star.planets():
-                if planet.population > 0:
+                if planet.homeplanet:
+                    color = (250, 250, 10)
+                elif planet.population > 0 and not color:
                     color = green
-                    self.basecolor = color = green
-                    radius = max(radius, int(planet.population / 1E8))
-                    print radius
-                    break
                 elif planet.popcapacity > 0 and not color:
                     color = blue
-                    break
+                radius = max(radius, int(planet.population / 1E9))
         if not color:
             color = red
 

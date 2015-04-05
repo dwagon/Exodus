@@ -12,11 +12,8 @@ from galaxy import Galaxy
 
 verbose = 0
 
-CARGOSIZE = 100000000
+CARGOSIZE = 100000
 MAXSHIPS = 500
-BLOWUP = 10000
-mode = 1  # 0=no-recolonisation, 1=recolonisation
-logfile = None
 
 black = 0, 0, 0
 red = 255, 0, 0
@@ -58,11 +55,8 @@ class Game():
             if shp.location != shp.destination.location:
                 shp.move()
             else:
-                if shp.loaded:
-                    shp.unload()
-                else:
-                    shp.load()
-                continue
+                shp.unload()
+                self.shiplist.remove(shp)
 
     ######################################################################
     def printPopulatedGalaxy(self):
@@ -81,18 +75,17 @@ class Game():
             if planet.population > 0:
                 totpop += planet.population
                 populated += 1
-                if planet.population > CARGOSIZE * 10 and len(self.shiplist) < MAXSHIPS:
-                    for i in range(1):
+                if planet.population > 1E9 and len(self.shiplist) < MAXSHIPS:
+                    for i in range(int(planet.population/1E9)):
                         s = ship.Ship(planet)
                         s.destination = planet
-                        s.load()
+                        s.load(CARGOSIZE)
                         self.shiplist.append(s)
                 if planet.homeplanet:
-                    planet.population -= int(planet.population * 0.03)
+                    planet.population += int(planet.population * 0.01)
                 else:
                     planet.population += int(planet.population * 0.03)
-                if planet.population > planet.popcapacity:
-                    planet.population = planet.popcapacity
+                planet.population = min(planet.popcapacity, planet.population)
             if planet.popcapacity > 0:
                 popcap += 1
         if populated == popcap:       # 100% colonised
@@ -130,6 +123,7 @@ class Game():
         textpos = text.get_rect(centerx=surf.get_width() / 2)
         surf.blit(text, textpos)
 
+    ######################################################################
     def plot(self):
         self.screen.fill(black)
         for ss in self.galaxy.starsystems():
@@ -138,7 +132,7 @@ class Game():
             shp.Plot(self.screen)
         self.drawText(self.screen, self.year, len(self.shiplist))
         pygame.display.flip()
-        pygame.time.wait(100)
+        pygame.time.wait(5)
 
 
 ##########################################################################
@@ -159,7 +153,7 @@ def main():
 ##########################################################################
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "v", ["log="])
+        opts, args = getopt.getopt(sys.argv[1:], "v", [])
     except getopt.GetoptError, err:
         sys.stderr.write("Error: %s\n" % str(err))
         usage()
@@ -168,8 +162,6 @@ if __name__ == "__main__":
     for o, a in opts:
         if o == "-v":
             verbose = 1
-        if o == "--log":
-            logfile = a
 
     main()
 

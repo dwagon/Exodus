@@ -1,12 +1,8 @@
 import pygame
 import random
-import sys
 
 import coord
 from bobj import BaseObj
-
-CARGOSIZE = 100000000
-mode = 1
 
 purple = 255, 0, 255
 white = 255, 255, 255
@@ -71,40 +67,23 @@ class Ship(BaseObj):
         closestbest = 0.0
         best = None
         for planet in galaxy.terrestrials:
-            if self.loaded:
-                # Emphasise uncolonised planets
-                if planet.homeplanet:
-                    continue
-                if self.currplanet:
-                    if planet.population > self.currplanet.population:
-                        continue
-                if mode == 0:
-                    if planet.population != 0:
-                        continue
-                    else:
-                        desire = planet.popcapacity / 1000
-                elif mode == 1:
-                    desire = planet.popcapacity / 1000 - (planet.population * 100000)
-                    desire = 100. * ((planet.popcapacity - planet.population) /
-                                     (1.0 * planet.popcapacity)) ** 5 * planet.popcapacity
-                    if desire < 0.0:
-                        desire = 0.0
-                else:
-                    sys.stderr.write("Unknown mode %d\n" % mode)
-                    sys.exit(1)
-            else:
-                desire = planet.population
-            distance = self.location.distance(planet.location)
-            if distance < 4:
+            if planet == self.currplanet:
                 continue
-            distmod = distance ** 2.0       # Emphasise closeness
-            pull = float(desire) / distmod * (1.0 - random.random() / 5.0)
+            if planet.homeplanet:
+                continue
+            if planet.population > self.currplanet.population:
+                continue
+
+            desire = 100 - int(100.0 * planet.population / planet.popcapacity)
+            distance = self.location.distance(planet.location)
+            if distance < 1.0:
+                continue
+
+            pull = float(desire) / distance
+            pull += self.d6()
             if pull > closestbest:
                 best = planet
                 closestbest = pull
-        if not best:
-            sys.stderr.write("No better location than here for %s\n" % repr(self))
-            return self.location
         self.destination = best
 
     ##########################################################################
@@ -117,18 +96,17 @@ class Ship(BaseObj):
             self.location = self.location.vector(direct, self.speed)
 
     ##########################################################################
-    def load(self):
-        if self.destination.population < CARGOSIZE * 2:
+    def load(self, cargo):
+        if self.destination.population < cargo * 2:
             return
         self.loaded = 1
-        self.cargo = CARGOSIZE
+        self.cargo = cargo
         self.destination.population -= self.cargo
         self.currplanet = self.destination
         self.destination = None
 
     ##########################################################################
     def unload(self):
-        self.loaded = 0
         self.destination.population += self.cargo
         self.loaded = 0
         self.cargo = 0
