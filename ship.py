@@ -75,6 +75,8 @@ class Ship(BaseObj):
                 continue
 
             desire = 100 - int(100.0 * planet.population / planet.popcapacity)
+            if planet.population == 0:
+                desire += 100
             distance = self.location.distance(planet.location)
             if distance < 1.0:
                 continue

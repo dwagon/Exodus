@@ -12,8 +12,8 @@ from galaxy import Galaxy
 
 verbose = 0
 
-CARGOSIZE = 100000
-MAXSHIPS = 500
+CARGOSIZE = 1000000
+MAXSHIPS = 50000
 
 black = 0, 0, 0
 red = 255, 0, 0
@@ -57,6 +57,13 @@ class Game():
             else:
                 shp.unload()
                 self.shiplist.remove(shp)
+        for planet in self.galaxy.terrestrials:
+            if planet.population > 1E9 and len(self.shiplist) < MAXSHIPS:
+                for i in range(int(planet.population / 2E9)):
+                    s = ship.Ship(planet)
+                    s.destination = planet
+                    s.load(CARGOSIZE)
+                    self.shiplist.append(s)
 
     ######################################################################
     def printPopulatedGalaxy(self):
@@ -75,16 +82,10 @@ class Game():
             if planet.population > 0:
                 totpop += planet.population
                 populated += 1
-                if planet.population > 1E9 and len(self.shiplist) < MAXSHIPS:
-                    for i in range(int(planet.population/1E9)):
-                        s = ship.Ship(planet)
-                        s.destination = planet
-                        s.load(CARGOSIZE)
-                        self.shiplist.append(s)
                 if planet.homeplanet:
-                    planet.population += int(planet.population * 0.01)
+                    planet.population += int(planet.population * 0.001)
                 else:
-                    planet.population += int(planet.population * 0.03)
+                    planet.population += int(planet.population * 0.003)
                 planet.population = min(planet.popcapacity, planet.population)
             if planet.popcapacity > 0:
                 popcap += 1
