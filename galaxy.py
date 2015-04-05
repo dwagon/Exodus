@@ -5,10 +5,10 @@ from bobj import BaseObj
 
 ##########################################################################
 class Galaxy(BaseObj):
-    def __init__(self, radius=1000, height=100):
+    def __init__(self, width=1000, height=100):
         self.starbits = []
-        self.initialise(radius, height)
-        self.radius = radius
+        self.initialise(width, height)
+        self.width = width
         self.height = height
         self.genPlanetList()
         self.terrestrials = self.getTerrestrials()
@@ -38,16 +38,15 @@ class Galaxy(BaseObj):
         pass
 
     ##########################################################################
-    def initialise(self, radius, height):
+    def initialise(self, width, height):
         numstars = 0
-        for x in range(radius):
-            for y in range(radius):
-                for z in range(height):
-                    loc = coord.Coord(x, y, z)
-                    if self.d6(2) >= 11:
-                        ss = StarSystem(loc)
-                        self.starbits.append(ss)
-                        numstars += len(ss)
+        for x in range(width):
+            for y in range(height):
+                loc = coord.Coord(x, y)
+                if self.d6(2) >= 11:
+                    ss = StarSystem(loc)
+                    self.starbits.append(ss)
+                    numstars += len(ss)
         print "NumStars=%d" % numstars
 
     ##########################################################################
@@ -67,8 +66,8 @@ class Galaxy(BaseObj):
 
     ##########################################################################
     def findHomePlanet(self):
-        cent = coord.Coord(self.radius / 2, self.radius / 2, self.height / 2)
-        mindist = self.radius * 2
+        cent = coord.Coord(self.width / 2, self.height / 2)
+        mindist = self.width * self.height
         homeplanet = None
         for planet in self.terrestrials:
             if planet.popcapacity > 1e9:

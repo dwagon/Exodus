@@ -210,7 +210,7 @@ class Star(bobj.BaseObj):
         else:       # Giant star
             y = self.d6(3)
             if y == 3:
-                z = self.self.d6(1)
+                z = self.d6(1)
                 if 1 <= z <= 2:
                     return self.genGiantType("SuperGiant", "Ia")
                 else:

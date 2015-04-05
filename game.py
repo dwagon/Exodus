@@ -4,7 +4,6 @@
 
 import sys
 import getopt
-import random
 import time
 import pygame
 
@@ -27,7 +26,8 @@ purple = 255, 0, 255
 white = 255, 255, 255
 
 screensize = screenwidth, screenheight = 800, 800
-galaxysize = galaxyradius, galaxyheight = 100, 1
+galaxywidth = 800
+galaxyheight = 800
 
 
 ##########################################################################
@@ -40,7 +40,7 @@ class Game():
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(screensize)
-        self.galaxy = Galaxy(galaxyradius, galaxyheight)
+        self.galaxy = Galaxy(galaxywidth, galaxyheight)
         self.homeplanet = self.galaxy.findHomePlanet()
         self.shiplist = []
         self.year = 0
@@ -48,11 +48,6 @@ class Game():
     ######################################################################
     def diaspora(self):
         for shp in self.shiplist[:]:
-            shp.startmonth = shp.location
-            if random.random() * BLOWUP <= 1:
-                print "Ship %s blew up" % str(shp)
-                self.shiplist.remove(shp)
-                continue
             if not shp.destination:
                 shp.determine_destination(self.galaxy)
             if not shp.destination:
@@ -68,8 +63,6 @@ class Game():
                 else:
                     shp.load()
                 continue
-            if shp.location == shp.startmonth:
-                print "Static Ship=%s (%s)" % (str(shp), shp.startmonth)
 
     ######################################################################
     def printPopulatedGalaxy(self):
@@ -145,6 +138,7 @@ class Game():
             shp.Plot(self.screen)
         self.drawText(self.screen, self.year, len(self.shiplist))
         pygame.display.flip()
+        pygame.time.wait(100)
 
 
 ##########################################################################

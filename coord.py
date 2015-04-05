@@ -1,5 +1,5 @@
 import math
-from game import screenwidth, screenheight, galaxyradius
+from game import screenwidth, screenheight, galaxywidth, galaxyheight
 from bobj import BaseObj
 
 
@@ -31,9 +31,19 @@ class Coord(BaseObj):
         return dist
 
     ##########################################################################
+    def angle(self, loc):
+        return math.atan2((loc.y - self.y), (loc.x - self.x))
+
+    ##########################################################################
+    def vector(self, angle, dist):
+        x = self.x + math.cos(angle) * dist
+        y = self.y + math.sin(angle) * dist
+        return Coord(x, y)
+
+    ##########################################################################
     def __abs__(self):
-        x = self.x * float(screenwidth) / galaxyradius
-        y = self.y * float(screenheight) / galaxyradius
+        x = self.x * float(screenwidth) / galaxywidth
+        y = self.y * float(screenheight) / galaxyheight
         return (int(x) + 1, int(y) + 1)
 
     ##########################################################################

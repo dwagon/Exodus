@@ -63,8 +63,8 @@ class Ship(BaseObj):
     ##########################################################################
     def has_destination(self):
         if self.destination:
-            return 1
-        return 0
+            return True
+        return False
 
     ##########################################################################
     def determine_destination(self, galaxy):
@@ -84,7 +84,6 @@ class Ship(BaseObj):
                     else:
                         desire = planet.popcapacity / 1000
                 elif mode == 1:
-                    # KORG try desire relation to available capacity
                     desire = planet.popcapacity / 1000 - (planet.population * 100000)
                     desire = 100. * ((planet.popcapacity - planet.population) /
                                      (1.0 * planet.popcapacity)) ** 5 * planet.popcapacity
@@ -103,48 +102,19 @@ class Ship(BaseObj):
             if pull > closestbest:
                 best = planet
                 closestbest = pull
-            if not best:
-                sys.stderr.write("No better location than here for %s\n" % repr(self))
-                return self.location
-            self.destination = best
+        if not best:
+            sys.stderr.write("No better location than here for %s\n" % repr(self))
+            return self.location
+        self.destination = best
 
     ##########################################################################
     def move(self):
-        moved = 0
-        goes = 0
         self.currplanet = None
-        x, y, z = self.location.coords()
-        destx, desty, destz = self.destination.location.coords()
-        while moved < self.speed:
-            if x == destx and y == desty and z == destz:
-                break
-            goes += 1
-            if goes > self.speed * 200:  # Hey we got lost
-                print "Got lost (%s,%s,%s)->(%s,%s,%s)" % (x, y, z, destx, desty, destz)
-                break
-            a = self.d6()
-            if a in (1, 2):
-                if x < destx:
-                    x += 1
-                    moved += 1
-                elif x > destx:
-                    x -= 1
-                    moved += 1
-            elif a in (3, 4):
-                if y < desty:
-                    y += 1
-                    moved += 1
-                elif y > desty:
-                    y -= 1
-                    moved += 1
-            else:
-                if z < destz:
-                    z += 1
-                    moved += 1
-                elif z > destz:
-                    z -= 1
-                    moved += 1
-        self.location = coord.Coord(x, y, z)
+        if self.location.distance(self.destination.location) < self.speed:
+            self.location = self.destination.location
+        else:
+            direct = self.location.angle(self.destination.location)
+            self.location = self.location.vector(direct, self.speed)
 
     ##########################################################################
     def load(self):
