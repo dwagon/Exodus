@@ -95,7 +95,7 @@ class Game(bobj.BaseObj):
         self.year += 1
 
     ######################################################################
-    def drawText(self, surf, year, numships):
+    def drawText(self, stsys):
         populated = 0
         popcap = 0
         totpop = 0
@@ -113,8 +113,8 @@ class Game(bobj.BaseObj):
                 popcap += 1
         font = pygame.font.Font(None, 20)
         toprint = [
-            "Year: %d" % year,
-            "Ships: %d" % numships,
+            "Year: %d" % self.year,
+            "Ships: %d" % len(self.shiplist),
             "Colonised: %d/%d" % (populated, popcap),
             "%0.2f%%" % (100.0 * populated / popcap),
             "Population: %0.4fB" % (totpop / 1E9),
@@ -122,24 +122,38 @@ class Game(bobj.BaseObj):
             "Colonists: %0.4fB" % (colpop / 1E9)
             ]
         text = font.render(" ".join(toprint), 1, white)
-        textpos = text.get_rect(centerx=surf.get_width() / 2)
-        surf.blit(text, textpos)
+        textpos = text.get_rect(centerx=self.screen.get_width() / 2)
+        self.screen.blit(text, textpos)
+
+        if stsys:
+            for s in stsys.stars():
+                count = 1
+                for p in s.planets():
+                    st = "Orbit %d %s " % (p.orbit, p.plantype)
+                    if p.popcapacity:
+                        st += "Pop: %0.4f/%0.4f " % (p.population / 1E9, p.popcapacity / 1E9)
+                    text = font.render(st, 1, white)
+                    textpos = text.get_rect(left=0, centery=count*20)
+                    count += 1
+                    self.screen.blit(text, textpos)
 
     ######################################################################
-    def plot(self):
+    def plot(self, stsys):
         self.screen.fill(black)
         for ss in self.galaxy.starsystems():
             ss.Plot(self.screen)
         for shp in self.shiplist:
             shp.Plot(self.screen)
-        self.drawText(self.screen, self.year, len(self.shiplist))
+        self.drawText(stsys)
         pygame.display.flip()
-        pygame.time.wait(5)
+        # pygame.time.wait(5)
 
 
 ##########################################################################
 def main():
     game = Game()
+    stsys = None
+    starttick = pygame.time.get_ticks()
     try:
         while(1):
             game.endOfYear()
@@ -147,8 +161,13 @@ def main():
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         raise KeyboardInterrupt
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        stsys = game.galaxy.click(event.pos)
+                        starttick = pygame.time.get_ticks()
                 game.diaspora()
-                game.plot()
+                if pygame.time.get_ticks() - starttick > 5000:
+                    stsys = None
+                game.plot(stsys)
     except KeyboardInterrupt:
         game.printPopulatedGalaxy()
 

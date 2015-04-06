@@ -14,6 +14,14 @@ class Galaxy(BaseObj):
         self.terrestrials = self.getTerrestrials()
 
     ##########################################################################
+    def click(self, pos):
+        for x in (0, -1, 1, -2, 2):
+            for y in (0, -1, 1, -2, 2):
+                foo = self[coord.Coord(pos[0]+x, pos[1]+y)]
+                if foo:
+                    return foo
+
+    ##########################################################################
     def genPlanetList(self):
         tmp = []
         for starsys in self.starsystems():
