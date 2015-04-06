@@ -31,7 +31,7 @@ class StarSystem(bobj.BaseObj):
             for planet in star.planets():
                 if planet.homeplanet:
                     homesystem = True
-                if hasattr(planet, 'maxdist'):
+                if planet.maxdist:
                     maxdist = max(maxdist, planet.maxdist)
                 pop += planet.population
                 popcap += planet.popcapacity
@@ -47,8 +47,6 @@ class StarSystem(bobj.BaseObj):
         radius = max(2, int(pop / 1E9))
 
         pygame.draw.circle(surf, color, abs(self.location), radius, 0)
-        if maxdist:
-            pygame.draw.circle(surf, white, abs(self.location), maxdist+18, 1)
 
     ##########################################################################
     def stars(self):

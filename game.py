@@ -96,6 +96,7 @@ class Game(bobj.BaseObj):
 
     ######################################################################
     def drawText(self, stsys):
+        surf = self.screen
         populated = 0
         popcap = 0
         totpop = 0
@@ -113,21 +114,35 @@ class Game(bobj.BaseObj):
                 popcap += 1
         font = pygame.font.Font(None, 20)
         toprint = [
-            "Year: %d" % self.year,
-            "Ships: %d" % len(self.shiplist),
-            "Colonised: %d/%d" % (populated, popcap),
-            "%0.2f%%" % (100.0 * populated / popcap),
-            "Population: %0.4fB" % (totpop / 1E9),
-            "Home %0.4fB" % (homepop / 1E9),
-            "Colonists: %0.4fB" % (colpop / 1E9)
+            [
+                "Year: %d" % self.year,
+                "Ships: %d" % len(self.shiplist),
+            ],
+            [
+                "Colonised: %d/%d" % (populated, popcap),
+                "%0.2f%%" % (100.0 * populated / popcap),
+            ],
+            [
+                "Population: %0.4fB" % (totpop / 1E9),
+                "Home %0.4fB" % (homepop / 1E9),
+                "Colonists: %0.4fB" % (colpop / 1E9)
             ]
-        text = font.render(" ".join(toprint), 1, white)
-        textpos = text.get_rect(centerx=self.screen.get_width() / 2)
-        self.screen.blit(text, textpos)
+        ]
+        count = 1
+        for tp in toprint:
+            text = font.render(" ".join(tp), 1, white)
+            textpos = text.get_rect(centerx=surf.get_width() / 2, centery=count*20)
+            surf.blit(text, textpos)
+            count += 1
 
         if stsys:
             for s in stsys.stars():
-                count = 1
+                count = 5
+                st = "%s" % s.stardesc
+                text = font.render(st, 1, white)
+                textpos = text.get_rect(left=0, centery=count*20)
+                surf.blit(text, textpos)
+                count += 1
                 for p in s.planets():
                     st = "Orbit %d %s " % (p.orbit, p.plantype)
                     if p.popcapacity:
@@ -135,7 +150,9 @@ class Game(bobj.BaseObj):
                     text = font.render(st, 1, white)
                     textpos = text.get_rect(left=0, centery=count*20)
                     count += 1
-                    self.screen.blit(text, textpos)
+                    surf.blit(text, textpos)
+                    if p.maxdist:
+                        pygame.draw.circle(surf, white, abs(p.location), p.maxdist+18, 1)
 
     ######################################################################
     def plot(self, stsys):
