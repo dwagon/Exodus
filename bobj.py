@@ -23,10 +23,10 @@ class BaseObj(object):
 
     ##########################################################################
     def d6(self, num=1):
-        sum = 0
+        tot = 0
         for i in range(num):
-            sum += int(random.random() * 6) + 1
-        return sum
+            tot += int(random.random() * 6) + 1
+        return tot
 
 
 # EOF
