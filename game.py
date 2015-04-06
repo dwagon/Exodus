@@ -9,6 +9,7 @@ import pygame
 
 import ship
 from galaxy import Galaxy
+import bobj
 
 verbose = 0
 
@@ -33,7 +34,7 @@ def usage():
 
 
 ##########################################################################
-class Game():
+class Game(bobj.BaseObj):
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(screensize)
@@ -45,23 +46,23 @@ class Game():
     ######################################################################
     def diaspora(self):
         for shp in self.shiplist[:]:
-            if not shp.destination:
-                shp.determine_destination(self.galaxy)
-            if not shp.destination:
-                self.shiplist.remove(shp)
-                print "Ship %s gives up" % str(shp)
-                continue
-
-            if shp.location != shp.destination.location:
+            if shp.currplanet != shp.destination:
                 shp.move()
             else:
+                if not shp.destination.settledate:
+                    shp.destination.settledate = self.year
                 shp.unload()
                 self.shiplist.remove(shp)
+
         for planet in self.galaxy.terrestrials:
             if planet.population > 1E9 and len(self.shiplist) < MAXSHIPS:
                 for i in range(int(planet.population / 2E9)):
-                    s = ship.Ship(planet)
-                    s.destination = planet
+                    s = ship.Ship(startplanet=planet)
+                    planet.maxdist = min((self.year - planet.settledate) / 20, 50) + min((self.year - planet.settledate) / 50, 50)
+                    s.maxdist = planet.maxdist + self.d6(3)
+                    s.determine_destination(self.galaxy)
+                    if not s.destination:
+                        continue
                     s.load(CARGOSIZE)
                     self.shiplist.append(s)
 

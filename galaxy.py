@@ -78,7 +78,8 @@ class Galaxy(BaseObj):
 
         print "Homeplanet=%s" % str(homeplanet)
         homeplanet.population = int(homeplanet.popcapacity * 0.5)
-        homeplanet.homeplanet = 1
+        homeplanet.homeplanet = True
+        homeplanet.settledate = -500
         return homeplanet
 
 # EOF

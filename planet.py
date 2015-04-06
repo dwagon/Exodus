@@ -9,9 +9,10 @@ class Planet(BaseObj):
         self.location = loc
         self.orbit = orbit
         self.size = 0
+        self.settledate = 0
         self.density = 0
         self.gravity = 0
-        self.homeplanet = 0
+        self.homeplanet = False
         self.population = 0
         self.popcapacity = 0
         if plantype == 'terrestrial':

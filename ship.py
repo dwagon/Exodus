@@ -14,6 +14,7 @@ class Ship(BaseObj):
         self.currplanet = None
         if startplanet:
             self.location, self.orbit = startplanet.location, startplanet.orbit
+            self.currplanet = startplanet
         else:
             self.location = coord.Coord(0, 0)
             self.orbit = 0
@@ -22,8 +23,9 @@ class Ship(BaseObj):
         else:
             self.name = name
         self.speed = 2
+        self.maxdist = 100
         self.cargo = 0
-        self.loaded = 0
+        self.loaded = False
         self.destination = None
 
     ##########################################################################
@@ -75,13 +77,18 @@ class Ship(BaseObj):
                 continue
 
             desire = 100 - int(100.0 * planet.population / planet.popcapacity)
-            if planet.population == 0:
+            if desire < 5:     # Don't colonise full planets
+                continue
+            if planet.population == 0:  # Emphasise empty planets
                 desire += 100
             distance = self.location.distance(planet.location)
-            if distance < 1.0:
+            if distance > self.maxdist:
                 continue
 
-            pull = float(desire) / distance
+            try:
+                pull = float(desire) / distance
+            except ZeroDivisionError:
+                pull = 1000
             pull += self.d6()
             if pull > closestbest:
                 best = planet
@@ -90,29 +97,27 @@ class Ship(BaseObj):
 
     ##########################################################################
     def move(self):
-        self.currplanet = None
         if self.location.distance(self.destination.location) < self.speed:
             self.location = self.destination.location
+            self.currplanet = self.destination
         else:
             direct = self.location.angle(self.destination.location)
             self.location = self.location.vector(direct, self.speed)
+            self.currplanet = None
 
     ##########################################################################
     def load(self, cargo):
-        if self.destination.population < cargo * 2:
+        if self.currplanet.population < cargo * 2:
             return
-        self.loaded = 1
+        self.loaded = True
         self.cargo = cargo
-        self.destination.population -= self.cargo
-        self.currplanet = self.destination
-        self.destination = None
+        self.currplanet.population -= self.cargo
 
     ##########################################################################
     def unload(self):
-        self.destination.population += self.cargo
-        self.loaded = 0
+        self.currplanet.population += self.cargo
+        self.loaded = False
         self.cargo = 0
-        self.currplanet = self.destination
         self.destination = None
 
     ##########################################################################

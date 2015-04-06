@@ -7,6 +7,7 @@ green = 0, 255, 0
 blue = 0, 0, 255
 red = 255, 0, 0
 yellow = 255, 255, 0
+white = 255, 255, 255
 
 
 ##########################################################################
@@ -25,10 +26,13 @@ class StarSystem(bobj.BaseObj):
         pop = 0
         homesystem = False
         popcap = 0
+        maxdist = 0
         for star in self.starlist:
             for planet in star.planets():
                 if planet.homeplanet:
                     homesystem = True
+                if hasattr(planet, 'maxdist'):
+                    maxdist = max(maxdist, planet.maxdist)
                 pop += planet.population
                 popcap += planet.popcapacity
 
@@ -43,6 +47,8 @@ class StarSystem(bobj.BaseObj):
         radius = max(2, int(pop / 1E9))
 
         pygame.draw.circle(surf, color, abs(self.location), radius, 0)
+        if maxdist:
+            pygame.draw.circle(surf, white, abs(self.location), maxdist+18, 1)
 
     ##########################################################################
     def stars(self):
