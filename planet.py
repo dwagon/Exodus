@@ -7,6 +7,8 @@ class Planet(BaseObj):
     def __init__(self, plantype, loc, orbit, atmosphere='normal'):
         self.plantype = plantype
         self.location = loc
+        self.maxdist = 0
+        self.maxdist_ticks = None
         self.orbit = orbit
         self.size = 0
         self.settledate = 0
@@ -64,28 +66,25 @@ class Planet(BaseObj):
         x = self.d6(2)
         if x in (2, 3, 4):
             self.genRockball()
+            self.popcapacity = 1e6
         elif x == 5:
+            self.popcapacity = 1e9
             self.genGreenhouse()
         elif x in (6, 7):
             # Earthlike
             self.popcapacity = 1e10
-            pass
         elif x in (8, 9):
             # Desert
             self.popcapacity = 1e8
-            pass
         elif x == 10:
             # Hostile
             self.popcapacity = 1e7
-            pass
         elif x == 11:
             # Icy rockball
             self.popcapacity = 1e6
-            pass
         else:
             # Iceball
             self.popcapacity = 1e6
-            pass
 
     ##########################################################################
     def __repr__(self):
