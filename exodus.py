@@ -14,7 +14,7 @@ import bobj
 verbose = 0
 
 CARGOSIZE = 1000000
-MAXSHIPS = 50000
+MAXSHIPS = 500
 
 black = 0, 0, 0
 red = 255, 0, 0
@@ -55,16 +55,20 @@ class Game(bobj.BaseObj):
                 self.shiplist.remove(shp)
 
         for planet in self.galaxy.terrestrials:
-            if planet.population > 1E9 and len(self.shiplist) < MAXSHIPS:
-                for i in range(int(planet.population / 2E9)):
+            if planet.population > 1E8 and len(self.shiplist) < MAXSHIPS:
+                for i in range(1):
                     s = ship.Ship(startplanet=planet)
-                    planet.maxdist = min((self.year - planet.settledate) / 20, 50) + min((self.year - planet.settledate) / 50, 50)
-                    s.maxdist = planet.maxdist + self.d6(3)
-                    s.determine_destination(self.galaxy)
-                    if not s.destination:
-                        continue
-                    s.load(CARGOSIZE)
-                    self.shiplist.append(s)
+                    planet.maxdist = \
+                        min((self.year - planet.settledate) / 20, 20) + \
+                        min((self.year - planet.settledate) / 50, 50) + \
+                        (self.year - planet.settledate) / 200
+                    if planet.maxdist > 5:
+                        s.maxdist = planet.maxdist + self.d6(3)
+                        s.determine_destination(self.galaxy)
+                        if not s.destination:
+                            continue
+                        s.load(CARGOSIZE)
+                        self.shiplist.append(s)
 
     ######################################################################
     def printPopulatedGalaxy(self):
@@ -138,7 +142,7 @@ class Game(bobj.BaseObj):
         if stsys:
             for s in stsys.stars():
                 count = 5
-                st = "%s" % s.stardesc
+                st = "Star %s" % s.stardesc
                 text = font.render(st, 1, white)
                 textpos = text.get_rect(left=0, centery=count*20)
                 surf.blit(text, textpos)
@@ -151,7 +155,7 @@ class Game(bobj.BaseObj):
                     textpos = text.get_rect(left=0, centery=count*20)
                     count += 1
                     surf.blit(text, textpos)
-                    if p.maxdist:
+                    if p.maxdist > 5:
                         pygame.draw.circle(surf, white, abs(p.location), p.maxdist+18, 1)
 
     ######################################################################

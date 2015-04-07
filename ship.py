@@ -36,9 +36,9 @@ class Ship(BaseObj):
         else:
             color = white
 
-        if self.destination:
-            pygame.draw.line(
-                surf, color, abs(self.location), abs(self.destination.location), 1)
+#        if self.destination:
+#            pygame.draw.line(
+#                surf, color, abs(self.location), abs(self.destination.location), 1)
         pygame.draw.circle(surf, color, abs(self.location), 2, 0)
 
     ##########################################################################

@@ -1,5 +1,5 @@
 import math
-from game import screenwidth, screenheight, galaxywidth, galaxyheight
+from exodus import screenwidth, screenheight, galaxywidth, galaxyheight
 from bobj import BaseObj
 
 

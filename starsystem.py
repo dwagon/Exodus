@@ -33,7 +33,7 @@ class StarSystem(bobj.BaseObj):
                     homesystem = True
                 if planet.maxdist:
                     maxdist = max(maxdist, planet.maxdist)
-                pop += planet.population
+                pop = max(planet.population, pop)
                 popcap += planet.popcapacity
 
         if homesystem:
