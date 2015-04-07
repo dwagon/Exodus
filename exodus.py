@@ -123,9 +123,9 @@ class Game(bobj.BaseObj):
                 "%0.2f%%" % (100.0 * populated / popcap),
             ],
             [
-                "Population: %0.4fB" % (totpop / 1E9),
-                "Home %0.4fB" % (homepop / 1E9),
-                "Colonists: %0.4fB" % (colpop / 1E9)
+                "Population: %s" % self.humanise(totpop),
+                "Home %s" % self.humanise(homepop),
+                "Colonists: %s" % self.humanise(colpop)
             ]
         ]
         count = 1
@@ -146,7 +146,7 @@ class Game(bobj.BaseObj):
                 for p in s.planets():
                     st = "Orbit %d %s " % (p.orbit, p.plantype)
                     if p.popcapacity:
-                        st += "Pop: %0.4f/%0.4f " % (p.population / 1E9, p.popcapacity / 1E9)
+                        st += "Pop: %s/%s " % (self.humanise(p.population), self.humanise(p.popcapacity))
                     text = font.render(st, 1, white)
                     textpos = text.get_rect(left=0, centery=count*20)
                     count += 1

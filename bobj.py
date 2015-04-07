@@ -28,5 +28,16 @@ class BaseObj(object):
             tot += int(random.random() * 6) + 1
         return tot
 
+    ##########################################################################
+    def humanise(self, num):
+        """ Convert a number to something human readable """
+        if num > 1E9:
+            return "%0.2fB" % (num / 1E9)
+        if num > 1E6:
+            return "%0.2fM" % (num / 1E6)
+        if num > 1E3:
+            return "%0.2fK" % (num / 1E3)
+        return "%d" % num
+
 
 # EOF
