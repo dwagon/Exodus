@@ -39,6 +39,8 @@ class Game(bobj.BaseObj):
         self.galaxy = Galaxy(galaxywidth, galaxyheight)
         self.homeplanet = self.galaxy.findHomePlanet()
         self.shiplist = []
+        self.numships = 0
+        self.numslowships = 0
         self.abandoned = 0
         self.year = 0
 
@@ -49,7 +51,7 @@ class Game(bobj.BaseObj):
                 shp.move()
             else:
                 if shp.destination.plantype == 'gasgiant':
-                    shp.determine_destination(self.galaxy)
+                    shp.destination = self.galaxy.determine_destination(shp)
                     if not shp.destination:
                         self.abandoned += shp.cargo
                         self.shiplist.remove(shp)
@@ -61,22 +63,19 @@ class Game(bobj.BaseObj):
 
         for plnt in self.galaxy.terrestrials:
             if plnt.population >= 1E8:
-                self.buildShip(plnt, speed=2)
+                s = self.buildShip(plnt, speed=2)
+                if s:
+                    self.numships += 1
 
     ######################################################################
     def buildShip(self, plnt, speed, alloweddest=['terrestrial']):
         if len(self.shiplist) >= MAXSHIPS:
             return
         s = ship.Ship(startplanet=plnt)
-        plnt.maxdist = \
-            min((self.year - plnt.settledate) / 25, 50) + \
-            min((self.year - plnt.settledate) / 50, 50) + \
-            min((self.year - plnt.settledate) / 100, 50) + \
-            (self.year - plnt.settledate) / 200
         if plnt.maxdist < 5:
             return
         s.maxdist = plnt.maxdist + self.d6(3)
-        s.determine_destination(self.galaxy)
+        s.destination = self.galaxy.determine_destination(s)
         if not s.destination:
             return
         if s.destination.plantype not in alloweddest:
@@ -84,6 +83,7 @@ class Game(bobj.BaseObj):
         s.load(CARGOSIZE)
         s.speed = speed
         self.shiplist.append(s)
+        return s
 
     ######################################################################
     def printPopulatedGalaxy(self):
@@ -100,6 +100,11 @@ class Game(bobj.BaseObj):
         totpop = 0
         for plnt in self.galaxy.terrestrials:
             if plnt.population > 0:
+                plnt.maxdist = int(
+                    min((self.year - plnt.settledate) / 25, 50) +
+                    min((self.year - plnt.settledate) / 50, 50) +
+                    min((self.year - plnt.settledate) / 100, 50) +
+                    (self.year - plnt.settledate) / 200)
                 totpop += plnt.population
                 populated += 1
                 if plnt.homeplanet:
@@ -107,8 +112,10 @@ class Game(bobj.BaseObj):
                 else:
                     plnt.population += int(plnt.population * 0.003)
                 plnt.population = min(plnt.popcapacity, plnt.population)
-                if plnt.population >= 1E7:
-                    self.buildShip(plnt, speed=1, alloweddest=['gasgiant'])
+                if plnt.population >= 1E7 and self.d6() == 6:
+                    s = self.buildShip(plnt, speed=1, alloweddest=['gasgiant'])
+                    if s:
+                        self.numslowships += 1
             if plnt.popcapacity > 0:
                 popcap += 1
         # Simplistically refuel gas giants - should be 12 turns after ship arrives
@@ -140,19 +147,21 @@ class Game(bobj.BaseObj):
         toprint = [
             [
                 "Year: %d" % self.year,
-                "Ships: %d" % len(self.shiplist),
             ],
             [
                 "Colonised: %d/%d" % (populated, popcap),
                 "%0.2f%%" % (100.0 * populated / popcap),
             ],
             [
-                "Population: %s" % self.humanise(totpop),
+                "Pop: %s" % self.humanise(totpop),
                 "Home %s" % self.humanise(homepop),
-                "Colonists: %s" % self.humanise(colpop)
+                "Col: %s" % self.humanise(colpop),
+                "Dead: %s" % self.humanise(self.abandoned),
             ],
             [
-                "Abandoned: %s" % self.humanise(self.abandoned),
+                "Ships: %d" % len(self.shiplist),
+                "Fast: %d" % self.numships,
+                "Slow: %d" % self.numslowships,
             ]
         ]
         count = 1

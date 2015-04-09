@@ -64,62 +64,6 @@ class Ship(BaseObj):
         return False
 
     ##########################################################################
-    def determine_destination(self, galaxy):
-        closestbest = 0.0
-        best = None
-        for plnt in galaxy.terrestrials:
-            if plnt in self.visited:
-                continue
-            if plnt == self.currplanet:
-                continue
-            if plnt.homeplanet:
-                continue
-            if plnt.population > self.currplanet.population:
-                continue
-
-            desire = 100 - int(100.0 * plnt.population / plnt.popcapacity)
-            if desire < 5:     # Don't colonise full planets
-                continue
-            if plnt.population == 0:  # Emphasise empty planets
-                desire += 100
-            distance = self.location.distance(plnt.location)
-            if distance > self.maxdist:
-                continue
-
-            try:
-                pull = float(desire) / distance
-            except ZeroDivisionError:
-                pull = 1000
-            pull += self.d6()
-            if pull > closestbest:
-                best = plnt
-                closestbest = pull
-        if not best:
-            best = self.furthestFuel(galaxy)
-        self.destination = best
-
-    ##########################################################################
-    def furthestFuel(self, galaxy):
-        furthest = 0.0
-        best = None
-        for plnt in galaxy.gasgiants:
-            if not plnt.fueled:
-                continue
-            if plnt.location in self.visited:
-                continue
-            distance = self.location.distance(plnt.location)
-            if distance > self.maxdist:
-                continue
-            if distance > furthest:
-                furthest = distance
-                best = plnt
-        if best:
-            best.fueled = False
-            self.visited.add(best.location)
-            self.refueled = True
-        return best
-
-    ##########################################################################
     def move(self):
         if self.location.distance(self.destination.location) < self.speed:
             self.location = self.destination.location

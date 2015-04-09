@@ -87,6 +87,62 @@ class Galaxy(BaseObj):
         return tmp
 
     ##########################################################################
+    def determine_destination(self, shp):
+        closestbest = 0.0
+        best = None
+        for plnt in self.terrestrials:
+            if plnt in shp.visited:
+                continue
+            if plnt == shp.currplanet:
+                continue
+            if plnt.homeplanet:
+                continue
+            if plnt.population > shp.currplanet.population:
+                continue
+
+            desire = 100 - int(100.0 * plnt.population / plnt.popcapacity)
+            if desire < 5:     # Don't colonise full planets
+                continue
+            if plnt.population == 0:  # Emphasise empty planets
+                desire += 100
+            distance = shp.location.distance(plnt.location)
+            if distance > shp.maxdist:
+                continue
+
+            try:
+                pull = float(desire) / distance
+            except ZeroDivisionError:
+                pull = 1
+            pull += self.d6()
+            if pull > closestbest:
+                best = plnt
+                closestbest = pull
+        if not best:
+            best = self.furthestFuel(shp)
+        return best
+
+    ##########################################################################
+    def furthestFuel(self, shp):
+        furthest = 0.0
+        best = None
+        for plnt in self.gasgiants:
+            if not plnt.fueled:
+                continue
+            if plnt.location in shp.visited:
+                continue
+            distance = shp.location.distance(plnt.location)
+            if distance > shp.maxdist:
+                continue
+            if distance > furthest:
+                furthest = distance
+                best = plnt
+        if best:
+            best.fueled = False
+            shp.visited.add(best.location)
+            shp.refueled = True
+        return best
+
+    ##########################################################################
     def findHomePlanet(self):
         cent = coord.Coord(self.width / 2, self.height / 2)
         mindist = self.width * self.height
