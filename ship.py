@@ -22,23 +22,22 @@ class Ship(BaseObj):
             self.name = self.GenerateName()
         else:
             self.name = name
-        self.speed = 2
+        self.speed = 1
+        self.refueled = False
         self.maxdist = 100
         self.cargo = 0
         self.loaded = False
         self.destination = None
+        self.visited = set([startplanet.location])
 
     ##########################################################################
     def Plot(self, surf):
         color = None
-        if self.loaded:
-            color = purple
-        else:
+        if self.refueled:
             color = white
+        else:
+            color = purple
 
-#        if self.destination:
-#            pygame.draw.line(
-#                surf, color, abs(self.location), abs(self.destination.location), 1)
         pygame.draw.circle(surf, color, abs(self.location), 2, 0)
 
     ##########################################################################
@@ -68,20 +67,22 @@ class Ship(BaseObj):
     def determine_destination(self, galaxy):
         closestbest = 0.0
         best = None
-        for planet in galaxy.terrestrials:
-            if planet == self.currplanet:
+        for plnt in galaxy.terrestrials:
+            if plnt in self.visited:
                 continue
-            if planet.homeplanet:
+            if plnt == self.currplanet:
                 continue
-            if planet.population > self.currplanet.population:
+            if plnt.homeplanet:
+                continue
+            if plnt.population > self.currplanet.population:
                 continue
 
-            desire = 100 - int(100.0 * planet.population / planet.popcapacity)
+            desire = 100 - int(100.0 * plnt.population / plnt.popcapacity)
             if desire < 5:     # Don't colonise full planets
                 continue
-            if planet.population == 0:  # Emphasise empty planets
+            if plnt.population == 0:  # Emphasise empty planets
                 desire += 100
-            distance = self.location.distance(planet.location)
+            distance = self.location.distance(plnt.location)
             if distance > self.maxdist:
                 continue
 
@@ -91,9 +92,32 @@ class Ship(BaseObj):
                 pull = 1000
             pull += self.d6()
             if pull > closestbest:
-                best = planet
+                best = plnt
                 closestbest = pull
+        if not best:
+            best = self.furthestFuel(galaxy)
         self.destination = best
+
+    ##########################################################################
+    def furthestFuel(self, galaxy):
+        furthest = 0.0
+        best = None
+        for plnt in galaxy.gasgiants:
+            if not plnt.fueled:
+                continue
+            if plnt.location in self.visited:
+                continue
+            distance = self.location.distance(plnt.location)
+            if distance > self.maxdist:
+                continue
+            if distance > furthest:
+                furthest = distance
+                best = plnt
+        if best:
+            best.fueled = False
+            self.visited.add(best.location)
+            self.refueled = True
+        return best
 
     ##########################################################################
     def move(self):

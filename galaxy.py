@@ -12,6 +12,9 @@ class Galaxy(BaseObj):
         self.height = height
         self.genPlanetList()
         self.terrestrials = self.getTerrestrials()
+        print "%d terrestrials" % len(self.terrestrials)
+        self.gasgiants = self.getGasGiants()
+        print "%d gasgiants" % len(self.gasgiants)
 
     ##########################################################################
     def click(self, pos):
@@ -58,18 +61,29 @@ class Galaxy(BaseObj):
         print "NumStars=%d" % numstars
 
     ##########################################################################
-    def getTerrestrials(self, planetlist=None):
+    def getTerrestrials(self, planetlist=[]):
         tmp = []
-        if planetlist:
-            for planet in planetlist:
-                if planet.popcapacity > 0:
-                    tmp.append(planet)
-        else:
+        if not planetlist:
             for starsys in self.starsystems():
                 for star in starsys.stars():
                     for planet in star.planets():
-                        if planet.popcapacity > 0:
-                            tmp.append(planet)
+                        planetlist.append(planet)
+        for planet in planetlist:
+            if planet.popcapacity > 0:
+                tmp.append(planet)
+        return tmp
+
+    ##########################################################################
+    def getGasGiants(self, planetlist=[]):
+        tmp = []
+        if not planetlist:
+            for starsys in self.starsystems():
+                for star in starsys.stars():
+                    for planet in star.planets():
+                        planetlist.append(planet)
+        for planet in planetlist:
+            if planet.plantype == 'gasgiant':
+                tmp.append(planet)
         return tmp
 
     ##########################################################################

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Star
 import bobj
 import sys

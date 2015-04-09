@@ -14,6 +14,7 @@ class Planet(BaseObj):
         self.settledate = 0
         self.density = 0
         self.gravity = 0
+        self.fueled = False
         self.homeplanet = False
         self.population = 0
         self.popcapacity = 0
@@ -58,6 +59,7 @@ class Planet(BaseObj):
     def genGasgiant(self):
         self.size = (self.d6(2) + 2) * 10000
         self.density = (self.d6(3) / 10.0) + 0.5
+        self.fueled = True
 
     ##########################################################################
     def genTerrestrial(self):
