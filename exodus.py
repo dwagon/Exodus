@@ -59,7 +59,7 @@ class Game(bobj.BaseObj):
 
     ######################################################################
     def buildShip(self, plnt, shipklass):
-        if len(self.shiplist) >= maxships:
+        if len(self.shiplist) >= maxships[shipklass.__name__]:
             return
         s = shipklass(startplanet=plnt, galaxy=self.galaxy)
         dest = s.determine_destination()
@@ -138,8 +138,6 @@ class Game(bobj.BaseObj):
             ],
             [
                 "Ships: %d" % len(self.shiplist),
-                "Liners: %d" % self.liners,
-                "Colonisers: %d" % self.colonisers,
             ]
         ]
         count = 1

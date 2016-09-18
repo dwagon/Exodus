@@ -1,4 +1,4 @@
-screensize = screenwidth, screenheight = 900, 800
-galaxywidth = 900
-galaxyheight = 800
-maxships = 200
+screensize = screenwidth, screenheight = 1200, 700
+galaxywidth = 1200
+galaxyheight = 700
+maxships = { 'Liner': 200, 'Coloniser': 10 }
