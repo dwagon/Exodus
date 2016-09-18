@@ -10,17 +10,10 @@ import pygame
 from coloniser import Coloniser
 from liner import Liner
 from galaxy import Galaxy
-from config import galaxywidth, galaxyheight, screensize
+from config import galaxywidth, galaxyheight, screensize, maxships
 import bobj
 
-CARGOSIZE = 1E6
-MAXSHIPS = 100
-
 black = 0, 0, 0
-red = 255, 0, 0
-green = 0, 255, 0
-blue = 0, 0, 255
-purple = 255, 0, 255
 white = 255, 255, 255
 
 
@@ -61,14 +54,14 @@ class Game(bobj.BaseObj):
 
         # Any populous planet can spin off liners
         for plnt in self.galaxy.terrestrials:
-            if plnt.population >= 1E8:
+            if plnt.population >= 1E7 and self.d6() in [5, 6]:
                 s = self.buildShip(plnt, Liner)
                 if s:
                     self.liners += 1
 
     ######################################################################
     def buildShip(self, plnt, shipklass):
-        if len(self.shiplist) >= MAXSHIPS:
+        if len(self.shiplist) >= maxships:
             return
         s = shipklass(startplanet=plnt, galaxy=self.galaxy)
         dest = s.determine_destination()
@@ -89,6 +82,7 @@ class Game(bobj.BaseObj):
                     min((self.year - plnt.settledate) / 20, 50) +
                     min((self.year - plnt.settledate) / 40, 50) +
                     min((self.year - plnt.settledate) / 80, 50) +
+                    min((plnt.population / 1E9), 20) +
                     (self.year - plnt.settledate) / 200)
                 totpop += plnt.population
                 populated += 1
@@ -98,7 +92,7 @@ class Game(bobj.BaseObj):
                     plnt.population += int(plnt.population * 0.003)
                 plnt.population = min(plnt.popcapacity, plnt.population)
                 # Very populous planets can generate colonisers
-                if plnt.population >= 1E9 and self.d6(2) > 10:
+                if plnt.population >= 5E8 and self.d6(2) > 10:
                     s = self.buildShip(plnt, Coloniser)
                     if s:
                         self.colonisers += 1
@@ -182,14 +176,12 @@ class Game(bobj.BaseObj):
             shp.Plot(self.screen)
         self.drawText(stsys)
         pygame.display.flip()
-        # pygame.time.wait(5)
 
 
 ##########################################################################
 def main():
     game = Game()
     stsys = None
-    starttick = pygame.time.get_ticks()
     try:
         while(1):
             game.endOfYear()
@@ -199,10 +191,7 @@ def main():
                         raise KeyboardInterrupt
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         stsys = game.galaxy.click(event.pos)
-                        starttick = pygame.time.get_ticks()
                 game.diaspora()
-                if pygame.time.get_ticks() - starttick > 5000:
-                    stsys = None
                 game.plot(stsys)
     except KeyboardInterrupt:
         return
