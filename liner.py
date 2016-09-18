@@ -22,6 +22,8 @@ class Liner(Ship):
                 continue
             if plnt.homeplanet:
                 continue
+            if plnt.settledate and plnt.settledate < self.currplanet.settledate:
+                continue
             if plnt.population > self.currplanet.population:
                 continue
             if plnt.population == 0:
