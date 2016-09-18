@@ -1,5 +1,6 @@
 import sys
 from bobj import BaseObj
+from collections import defaultdict
 
 
 ##########################################################################
@@ -17,6 +18,7 @@ class Planet(BaseObj):
         self.homeplanet = False
         self.population = 0
         self.popcapacity = 0
+        self.launches = defaultdict(int)
         if plantype == 'terrestrial':
             self.genTerrestrial()
         elif plantype == 'gasgiant':
@@ -32,6 +34,13 @@ class Planet(BaseObj):
         else:
             sys.stderr.write("Unhandled planettype %s\n" % plantype)
         self.gravity = self.size * self.density * 0.0000228
+
+    ##########################################################################
+    def launchstr(self):
+        out = []
+        for k, v in self.launches.items():
+            out.append("%s=%d" % (k, v))
+        return "; ".join(out)
 
     ##########################################################################
     def Plot(self, surf):

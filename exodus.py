@@ -67,6 +67,7 @@ class Game(bobj.BaseObj):
             return
         s.load(s.cargosize)
         self.shiplist.append(s)
+        plnt.launches[shipklass.__name__] += 1
         return s
 
     ######################################################################
@@ -159,7 +160,7 @@ class Game(bobj.BaseObj):
                 for p in s.planets():
                     st = "Orbit %d %s " % (p.orbit, p.plantype)
                     if p.popcapacity:
-                        st += "Pop: %s/%s " % (self.humanise(p.population), self.humanise(p.popcapacity))
+                        st += "Pop: %s/%s (%s) %s" % (self.humanise(p.population), self.humanise(p.popcapacity), p.settledate, p.launchstr())
                     text = font.render(st, 1, white)
                     textpos = text.get_rect(left=0, centery=count*20)
                     count += 1
