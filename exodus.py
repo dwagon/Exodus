@@ -6,6 +6,7 @@ import sys
 import getopt
 import time
 import pygame
+from collections import defaultdict
 
 from coloniser import Coloniser
 from liner import Liner
@@ -29,7 +30,7 @@ class Game(bobj.BaseObj):
         self.screen = pygame.display.set_mode(screensize)
         self.galaxy = Galaxy(galaxywidth, galaxyheight)
         self.homeplanet = self.galaxy.findHomePlanet()
-        self.shiplist = []
+        self.ships = defaultdict(list)
         self.liners = 0
         self.colonisers = 0
         self.abandoned = 0
@@ -37,20 +38,21 @@ class Game(bobj.BaseObj):
 
     ######################################################################
     def diaspora(self):
-        for shp in self.shiplist[:]:
-            if shp.currplanet != shp.destination:
-                shp.move()
-            else:
-                if shp.destination.plantype == 'gasgiant':
-                    dest = shp.determine_destination()
-                    if not dest:
-                        self.abandoned += shp.cargo
-                        self.shiplist.remove(shp)
+        for shptype in self.ships:
+            for shp in self.ships[shptype][:]:
+                if shp.currplanet != shp.destination:
+                    shp.move()
                 else:
-                    if not shp.destination.settledate:
-                        shp.destination.settledate = self.year
-                    shp.unload()
-                    self.shiplist.remove(shp)
+                    if shp.destination.plantype == 'gasgiant':
+                        dest = shp.determine_destination()
+                        if not dest:
+                            self.abandoned += shp.cargo
+                            self.ships[shptype].remove(shp)
+                    else:
+                        if not shp.destination.settledate:
+                            shp.destination.settledate = self.year
+                        shp.unload()
+                        self.ships[shptype].remove(shp)
 
         # Any populous planet can spin off liners
         for plnt in self.galaxy.terrestrials:
@@ -59,15 +61,16 @@ class Game(bobj.BaseObj):
 
     ######################################################################
     def buildShip(self, plnt, shipklass):
-        if len(self.shiplist) >= maxships[shipklass.__name__]:
+        sk = shipklass.__name__
+        if len(self.ships[sk]) >= maxships[sk]:
             return
         s = shipklass(startplanet=plnt, galaxy=self.galaxy)
         dest = s.determine_destination()
         if not dest:
             return
         s.load(s.cargosize)
-        self.shiplist.append(s)
-        plnt.launches[shipklass.__name__] += 1
+        self.ships[sk].append(s)
+        plnt.launches[sk] += 1
         return s
 
     ######################################################################
@@ -137,7 +140,8 @@ class Game(bobj.BaseObj):
                 "Dead: %s" % self.humanise(self.abandoned),
             ],
             [
-                "Ships: %d" % len(self.shiplist),
+                "Liners: %d" % len(self.ships['Liner']),
+                "Colonisers: %d" % len(self.ships['Coloniser']),
             ]
         ]
         count = 1
@@ -171,8 +175,9 @@ class Game(bobj.BaseObj):
         self.screen.fill(black)
         for ss in self.galaxy.starsystems():
             ss.Plot(self.screen)
-        for shp in self.shiplist:
-            shp.Plot(self.screen)
+        for shptyp in self.ships:
+            for shp in self.ships[shptyp]:
+                shp.Plot(self.screen)
         self.drawText(stsys)
         pygame.display.flip()
 
