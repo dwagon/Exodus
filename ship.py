@@ -1,30 +1,15 @@
 import pygame
-import random
 
-import coord
 from bobj import BaseObj
-
-purple = 255, 0, 255
-white = 255, 255, 255
 
 
 ##########################################################################
 class Ship(BaseObj):
-    def __init__(self, startplanet=None, name=None):
+    def __init__(self, startplanet, galaxy):
         self.currplanet = None
-        if startplanet:
-            self.location, self.orbit = startplanet.location, startplanet.orbit
-            self.currplanet = startplanet
-        else:
-            self.location = coord.Coord(0, 0)
-            self.orbit = 0
-        if not name:
-            self.name = self.GenerateName()
-        else:
-            self.name = name
-        self.speed = 1
-        self.refueled = False
-        self.maxdist = 100
+        self.galaxy = galaxy
+        self.location, self.orbit = startplanet.location, startplanet.orbit
+        self.currplanet = startplanet
         self.cargo = 0
         self.loaded = False
         self.destination = None
@@ -32,23 +17,7 @@ class Ship(BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        color = None
-        if self.refueled:
-            color = white
-        else:
-            color = purple
-
-        pygame.draw.circle(surf, color, abs(self.location), 2, 0)
-
-    ##########################################################################
-    def GenerateName(self):
-        return "ship"
-        f = open('/usr/share/dict/words')
-        output = f.readlines()
-        f.close()
-        numchoices = len(output)
-        pos = int(random.random() * numchoices)
-        return output[pos].strip().capitalize()
+        pygame.draw.circle(surf, self.color, abs(self.location), 2, 0)
 
     ##########################################################################
     def __repr__(self):

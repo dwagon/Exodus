@@ -7,12 +7,14 @@ import getopt
 import time
 import pygame
 
-import ship
+from coloniser import Coloniser
+from liner import Liner
 from galaxy import Galaxy
+from config import galaxywidth, galaxyheight, screensize
 import bobj
 
 CARGOSIZE = 1E6
-MAXSHIPS = 5000
+MAXSHIPS = 100
 
 black = 0, 0, 0
 red = 255, 0, 0
@@ -20,10 +22,6 @@ green = 0, 255, 0
 blue = 0, 0, 255
 purple = 255, 0, 255
 white = 255, 255, 255
-
-screensize = screenwidth, screenheight = 800, 800
-galaxywidth = 800
-galaxyheight = 800
 
 
 ##########################################################################
@@ -39,8 +37,8 @@ class Game(bobj.BaseObj):
         self.galaxy = Galaxy(galaxywidth, galaxyheight)
         self.homeplanet = self.galaxy.findHomePlanet()
         self.shiplist = []
-        self.numships = 0
-        self.numslowships = 0
+        self.liners = 0
+        self.colonisers = 0
         self.abandoned = 0
         self.year = 0
 
@@ -51,8 +49,8 @@ class Game(bobj.BaseObj):
                 shp.move()
             else:
                 if shp.destination.plantype == 'gasgiant':
-                    shp.destination = self.galaxy.determine_destination(shp)
-                    if not shp.destination:
+                    dest = shp.determine_destination()
+                    if not dest:
                         self.abandoned += shp.cargo
                         self.shiplist.remove(shp)
                 else:
@@ -61,37 +59,24 @@ class Game(bobj.BaseObj):
                     shp.unload()
                     self.shiplist.remove(shp)
 
+        # Any populous planet can spin off liners
         for plnt in self.galaxy.terrestrials:
             if plnt.population >= 1E8:
-                s = self.buildShip(plnt, speed=2)
+                s = self.buildShip(plnt, Liner)
                 if s:
-                    self.numships += 1
+                    self.liners += 1
 
     ######################################################################
-    def buildShip(self, plnt, speed, alloweddest=['terrestrial']):
+    def buildShip(self, plnt, shipklass):
         if len(self.shiplist) >= MAXSHIPS:
             return
-        s = ship.Ship(startplanet=plnt)
-        if plnt.maxdist < 5:
+        s = shipklass(startplanet=plnt, galaxy=self.galaxy)
+        dest = s.determine_destination()
+        if not dest:
             return
-        s.maxdist = plnt.maxdist + self.d6(3)
-        s.destination = self.galaxy.determine_destination(s)
-        if not s.destination:
-            return
-        if s.destination.plantype not in alloweddest:
-            return
-        s.load(CARGOSIZE)
-        s.speed = speed
+        s.load(s.cargosize)
         self.shiplist.append(s)
         return s
-
-    ######################################################################
-    def printPopulatedGalaxy(self):
-        for starsystem in self.galaxy.starsystems():
-            for star in starsystem.stars():
-                for plnt in star.planets():
-                    if plnt.population > 0:
-                        print "%s: %s (Dist %d)" % (str(plnt), plnt.population, plnt.location.distance(self.homeplanet.location))
 
     ######################################################################
     def endOfYear(self):
@@ -101,9 +86,9 @@ class Game(bobj.BaseObj):
         for plnt in self.galaxy.terrestrials:
             if plnt.population > 0:
                 plnt.maxdist = int(
-                    min((self.year - plnt.settledate) / 25, 50) +
-                    min((self.year - plnt.settledate) / 50, 50) +
-                    min((self.year - plnt.settledate) / 100, 50) +
+                    min((self.year - plnt.settledate) / 20, 50) +
+                    min((self.year - plnt.settledate) / 40, 50) +
+                    min((self.year - plnt.settledate) / 80, 50) +
                     (self.year - plnt.settledate) / 200)
                 totpop += plnt.population
                 populated += 1
@@ -112,15 +97,13 @@ class Game(bobj.BaseObj):
                 else:
                     plnt.population += int(plnt.population * 0.003)
                 plnt.population = min(plnt.popcapacity, plnt.population)
-                if plnt.population >= 1E7 and self.d6() == 6:
-                    s = self.buildShip(plnt, speed=1, alloweddest=['gasgiant'])
+                # Very populous planets can generate colonisers
+                if plnt.population >= 1E9 and self.d6(2) > 10:
+                    s = self.buildShip(plnt, Coloniser)
                     if s:
-                        self.numslowships += 1
+                        self.colonisers += 1
             if plnt.popcapacity > 0:
                 popcap += 1
-        # Simplistically refuel gas giants - should be 12 turns after ship arrives
-        for plnt in self.galaxy.gasgiants:
-            plnt.fueled = True
         if populated == popcap:       # 100% colonised
             time.sleep(30)
         self.year += 1
@@ -160,8 +143,8 @@ class Game(bobj.BaseObj):
             ],
             [
                 "Ships: %d" % len(self.shiplist),
-                "Fast: %d" % self.numships,
-                "Slow: %d" % self.numslowships,
+                "Liners: %d" % self.liners,
+                "Colonisers: %d" % self.colonisers,
             ]
         ]
         count = 1
@@ -188,7 +171,7 @@ class Game(bobj.BaseObj):
                     count += 1
                     surf.blit(text, textpos)
                     if p.maxdist > 5:
-                        pygame.draw.circle(surf, white, abs(p.location), p.maxdist+18, 1)
+                        pygame.draw.circle(surf, white, abs(p.location), p.maxdist, 1)
 
     ######################################################################
     def plot(self, stsys):
@@ -222,7 +205,7 @@ def main():
                     stsys = None
                 game.plot(stsys)
     except KeyboardInterrupt:
-        game.printPopulatedGalaxy()
+        return
 
 ##########################################################################
 if __name__ == "__main__":
