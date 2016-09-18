@@ -44,7 +44,16 @@ class StarSystem(bobj.BaseObj):
             color = blue
         else:
             color = red
-        radius = max(2, int(pop / 1E9))
+        if pop > 1E9:
+            radius = 6
+        elif pop > 1E8:
+            radius = 5
+        elif pop > 1E7:
+            radius = 4
+        elif pop > 1E6:
+            radius = 3
+        else:
+            radius = 2
 
         pygame.draw.circle(surf, color, abs(self.location), radius, 0)
 
