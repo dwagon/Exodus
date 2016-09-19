@@ -1,3 +1,4 @@
+import pygame
 from ship import Ship
 
 
@@ -9,8 +10,37 @@ class Coloniser(Ship):
         Ship.__init__(self, startplanet, galaxy)
         self.speed = 1
         self.color = 255, 255, 255  # White
-        self.maxdist = startplanet.maxdist + self.d6(10)
+        self.maxdist = startplanet.maxdist + self.d6(2)
         self.cargosize = 1E4
+        self.visited = [startplanet.location]
+
+    ##########################################################################
+    def doSpawn(self):
+        plnt = self.startplanet
+        spawn = False
+        if plnt.population >= 1E9 and self.d6(2) > 8:
+            spawn = True
+        elif plnt.population >= 1E8 and self.d6(2) > 10:
+            spawn = True
+        elif plnt.population >= 1E7 and self.d6(2) == 12:
+            spawn = True
+        else:
+            return False
+        if not spawn:
+            return False
+        if self.nearestEmptyTerrestrial() > self.maxdist * 3:
+            return False
+        return True
+
+    ##########################################################################
+    def Plot(self, surf):
+        points = []
+        for i in self.visited:
+            points.append((i.x, i.y))
+        points.append((self.location.x, self.location.y))
+
+        pygame.draw.lines(surf, self.color, False, points, 1)
+        pygame.draw.circle(surf, self.color, abs(self.location), 2, 0)
 
     ##########################################################################
     def determine_destination(self):
@@ -18,7 +48,7 @@ class Coloniser(Ship):
         closestbest = 0.0
         best = None
         for plnt in self.galaxy.terrestrials:
-            if plnt in self.visited:
+            if plnt.location in self.visited:
                 continue
             if plnt == self.currplanet:
                 continue
@@ -52,6 +82,7 @@ class Coloniser(Ship):
         # Occassionally you just can't refuel
         if self.d6() == 6:
             return None
+        homedistance = self.location.distance(self.galaxy.homeplanet.location)
 
         for plnt in self.galaxy.gasgiants:
             if plnt.location in self.visited:
@@ -59,11 +90,15 @@ class Coloniser(Ship):
             distance = self.location.distance(plnt.location)
             if distance > self.maxdist:
                 continue
+            # Move away from the home planet
+            newdist = plnt.location.distance(self.galaxy.homeplanet.location)
+            if newdist < homedistance:
+                continue
             if distance > furthest:
                 furthest = distance
                 best = plnt
         if best:
-            self.visited.add(best.location)
+            self.visited.append(best.location)
         return best
 
 # EOF

@@ -98,8 +98,7 @@ class Galaxy(BaseObj):
                     mindist = dist
                     homeplanet = planet
 
-        print "Homeplanet=%s" % str(homeplanet)
-        homeplanet.population = int(homeplanet.popcapacity * 0.5)
+        homeplanet.population = int(homeplanet.popcapacity * 0.9)
         homeplanet.homeplanet = True
         homeplanet.settledate = -500
         return homeplanet

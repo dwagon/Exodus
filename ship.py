@@ -10,10 +10,25 @@ class Ship(BaseObj):
         self.galaxy = galaxy
         self.location, self.orbit = startplanet.location, startplanet.orbit
         self.currplanet = startplanet
+        self.startplanet = startplanet
         self.cargo = 0
         self.loaded = False
         self.destination = None
-        self.visited = set([startplanet.location])
+
+    ##########################################################################
+    def doSpawn(self):
+        return True
+
+    ##########################################################################
+    def nearestEmptyTerrestrial(self):
+        """ Return distance to nearest terrestrial planet that is unpopulated """
+        nearest = 999999
+        for plnt in self.galaxy.terrestrials:
+            if plnt.population:
+                continue
+            distance = self.location.distance(plnt.location)
+            nearest = min(nearest, distance)
+        return nearest
 
     ##########################################################################
     def Plot(self, surf):

@@ -30,6 +30,7 @@ class Game(bobj.BaseObj):
         self.screen = pygame.display.set_mode(screensize)
         self.galaxy = Galaxy(galaxywidth, galaxyheight)
         self.homeplanet = self.galaxy.findHomePlanet()
+        self.galaxy.homeplanet = self.homeplanet
         self.ships = defaultdict(list)
         self.liners = 0
         self.colonisers = 0
@@ -56,8 +57,7 @@ class Game(bobj.BaseObj):
 
         # Any populous planet can spin off liners
         for plnt in self.galaxy.terrestrials:
-            if (plnt.population >= 1E9 and self.d6() == 6) or (plnt.population >= 1E8 and self.d6(2) > 10) or (plnt.population >= 1E7 and self.d6(2) == 12):
-                self.buildShip(plnt, Liner)
+            self.buildShip(plnt, Liner)
 
     ######################################################################
     def buildShip(self, plnt, shipklass):
@@ -65,6 +65,8 @@ class Game(bobj.BaseObj):
         if len(self.ships[sk]) >= maxships[sk]:
             return
         s = shipklass(startplanet=plnt, galaxy=self.galaxy)
+        if not s.doSpawn():
+            return
         dest = s.determine_destination()
         if not dest:
             return
@@ -94,12 +96,7 @@ class Game(bobj.BaseObj):
                     plnt.population += int(plnt.population * 0.003)
                 plnt.population = min(plnt.popcapacity, plnt.population)
                 # Very populous planets can generate colonisers
-                if plnt.population >= 1E9 and self.d6(2) > 8:
-                    self.buildShip(plnt, Coloniser)
-                elif plnt.population >= 1E8 and self.d6(2) > 10:
-                    self.buildShip(plnt, Coloniser)
-                elif plnt.population >= 1E7 and self.d6(2) == 12:
-                    self.buildShip(plnt, Coloniser)
+                self.buildShip(plnt, Coloniser)
             if plnt.popcapacity > 0:
                 popcap += 1
         if populated == popcap:       # 100% colonised

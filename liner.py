@@ -13,6 +13,15 @@ class Liner(Ship):
         self.cargosize = 1E6 * self.d6()
 
     ##########################################################################
+    def doSpawn(self):
+        plnt = self.startplanet
+        if plnt.population / plnt.popcapacity < 0.5:
+            return False
+        if (plnt.population >= 1E9 and self.d6() == 6) or (plnt.population >= 1E8 and self.d6(2) > 10) or (plnt.population >= 1E7 and self.d6(2) == 12):
+            return True
+        return False
+
+    ##########################################################################
     def determine_destination(self):
         """ Liners can only go to colonised planets """
         closestbest = 0.0
