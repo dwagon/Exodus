@@ -26,14 +26,13 @@ class Coloniser(Ship):
                 continue
             if plnt.population:
                 continue
-            desire = 100
 
             distance = self.location.distance(plnt.location)
             if distance > self.maxdist:
                 continue
 
             try:
-                pull = float(desire) / distance
+                pull = 1 / distance
             except ZeroDivisionError:
                 pull = 1
             pull += self.d6()
