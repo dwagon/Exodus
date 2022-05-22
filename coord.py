@@ -15,11 +15,11 @@ class Coord(BaseObj):
 
     ##########################################################################
     def __ne__(self, loc):
-        return (self.x != loc.x or self.y != loc.y)
+        return self.x != loc.x or self.y != loc.y
 
     ##########################################################################
     def __eq__(self, loc):
-        return (self.x == loc.x and self.y == loc.y)
+        return self.x == loc.x and self.y == loc.y
 
     ##########################################################################
     def __nonzero__(self):
@@ -49,5 +49,6 @@ class Coord(BaseObj):
     ##########################################################################
     def __repr__(self):
         return "<Coord %d, %d>" % (self.x, self.y)
+
 
 # EOF

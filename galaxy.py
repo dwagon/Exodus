@@ -12,15 +12,15 @@ class Galaxy(BaseObj):
         self.height = height
         self.genPlanetList()
         self.terrestrials = self.getTerrestrials()
-        print "%d terrestrials" % len(self.terrestrials)
+        print("%d terrestrials" % len(self.terrestrials))
         self.gasgiants = self.getGasGiants()
-        print "%d gasgiants" % len(self.gasgiants)
+        print("%d gasgiants" % len(self.gasgiants))
 
     ##########################################################################
     def click(self, pos):
         for x in (0, -1, 1, -2, 2, -3, 3):
             for y in (0, -1, 1, -2, 2, -3, 3):
-                foo = self[Coord(pos[0]+x, pos[1]+y)]
+                foo = self[Coord(pos[0] + x, pos[1] + y)]
                 if foo:
                     return foo
 
@@ -45,7 +45,7 @@ class Galaxy(BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        print "Plot(Galaxy)"
+        print("Plot(Galaxy)")
         pass
 
     ##########################################################################
@@ -58,7 +58,7 @@ class Galaxy(BaseObj):
                     ss = StarSystem(loc)
                     self.starbits.append(ss)
                     numstars += len(ss)
-        print "NumStars=%d" % numstars
+        print("NumStars=%d" % numstars)
 
     ##########################################################################
     def getTerrestrials(self, planetlist=[]):
@@ -82,7 +82,7 @@ class Galaxy(BaseObj):
                     for planet in star.planets():
                         planetlist.append(planet)
         for planet in planetlist:
-            if planet.plantype == 'gasgiant':
+            if planet.plantype == "gasgiant":
                 tmp.append(planet)
         return tmp
 
@@ -102,5 +102,6 @@ class Galaxy(BaseObj):
         homeplanet.homeplanet = True
         homeplanet.settledate = -500
         return homeplanet
+
 
 # EOF

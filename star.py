@@ -17,7 +17,7 @@ class Star(bobj.BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        print "Plot(star)"
+        print("Plot(star)")
 
     ##########################################################################
     def planets(self):
@@ -33,52 +33,53 @@ class Star(bobj.BaseObj):
         if not bits:
             return
         size, stellmass, bzonestart, bzoneend, limit, stellrad, plan, orbs, life = bits
-        if self.d6(3) >= plan:     # No planets
+        if self.d6(3) >= plan:  # No planets
             return
         for i in range(self.dice(orbs)):
             radius = self.genOrbitRadius(startype, starsize, stellrad, i)
-            if radius < bzonestart:   # Orbits before the biozone
+            if radius < bzonestart:  # Orbits before the biozone
                 x = self.d6(2)
                 if 2 <= x <= 4:
                     self.orbits.append(None)
                 elif 5 <= x <= 6:
-                    self.orbits.append(Planet('greenhouse', self.location, i))
+                    self.orbits.append(Planet("greenhouse", self.location, i))
                 elif 7 <= x <= 9:
-                    self.orbits.append(Planet('rockball', self.location, i))
+                    self.orbits.append(Planet("rockball", self.location, i))
                 elif 10 <= x <= 11:
-                    self.orbits.append(Planet('asteroid', self.location, i))
+                    self.orbits.append(Planet("asteroid", self.location, i))
                 else:
                     if i == 0:
                         self.orbits.append(None)
                     else:
-                        self.orbits.append(Planet('browndwarf', self.location, i))
-            elif radius > bzoneend:   # Orbits after the biozone
+                        self.orbits.append(Planet("browndwarf", self.location, i))
+            elif radius > bzoneend:  # Orbits after the biozone
                 x = self.d6()
                 if radius > 10 * bzoneend:
                     x += 1
                 if x == 1:
-                    self.orbits.append(Planet('terrestrial', self.location, i))
+                    self.orbits.append(Planet("terrestrial", self.location, i))
                 elif x == 2:
-                    self.orbits.append(Planet('asteroid', self.location, i))
+                    self.orbits.append(Planet("asteroid", self.location, i))
                 elif x == 2:
                     self.orbits.append(None)
                 elif 4 <= x <= 6:
-                    self.orbits.append(Planet('gasgiant', self.location, i))
+                    self.orbits.append(Planet("gasgiant", self.location, i))
                 elif x == 7:
                     self.orbits.append(
-                        Planet('terrestrial', self.location, i, atmosphere='trace'))
-            else:   # Orbits within the biozone
+                        Planet("terrestrial", self.location, i, atmosphere="trace")
+                    )
+            else:  # Orbits within the biozone
                 x = self.d6(2)
                 if x in (2, 3):
                     self.orbits.append(None)
                 elif 4 <= x <= 8:
-                    self.orbits.append(Planet('terrestrial', self.location, i))
+                    self.orbits.append(Planet("terrestrial", self.location, i))
                 elif x in (9, 10):
-                    self.orbits.append(Planet('asteroid', self.location, i))
+                    self.orbits.append(Planet("asteroid", self.location, i))
                 elif x == 11:
-                    self.orbits.append(Planet('gasgiant', self.location, i))
+                    self.orbits.append(Planet("gasgiant", self.location, i))
                 else:
-                    self.orbits.append(Planet('browndwarf', self.location, i))
+                    self.orbits.append(Planet("browndwarf", self.location, i))
 
     ##########################################################################
     def genOrbitRadius(self, startype, starsize, stellradius, orbitnum):
@@ -89,11 +90,11 @@ class Star(bobj.BaseObj):
             else:
                 return inner
         bode = self.genBodeConstant(startype, starsize)
-        return inner + (2 ** orbitnum) * bode
+        return inner + (2**orbitnum) * bode
 
     ##########################################################################
     def genBodeConstant(self, startype, starsize):
-        if startype == 'M' and starsize == 'VI':
+        if startype == "M" and starsize == "VI":
             bode = 0.2
         else:
             x = self.d6()
@@ -112,45 +113,45 @@ class Star(bobj.BaseObj):
         planets on, #orbits, life roll
         """
         orbitData = {
-            'O': [
-                ('Ia', 70, 790, 1190, 16, 0.2, 0, '', -12),
-                ('Ib', 60, 630, 950, 13, 0.1, 0, '', -12),
-                ('V', 50, 500, 750, 10, 0.0, 0, '', -9),
+            "O": [
+                ("Ia", 70, 790, 1190, 16, 0.2, 0, "", -12),
+                ("Ib", 60, 630, 950, 13, 0.1, 0, "", -12),
+                ("V", 50, 500, 750, 10, 0.0, 0, "", -9),
             ],
-            'B': [
-                ('Ia', 50, 500, 750, 10, 0.2, 0, '', -10),
-                ('V', 10, 30, 45, 0.6, 0, 4, '3d', -9),
+            "B": [
+                ("Ia", 50, 500, 750, 10, 0.2, 0, "", -10),
+                ("V", 10, 30, 45, 0.6, 0, 4, "3d", -9),
             ],
-            'A': [
-                ('Ia', 30, 200, 300, 4.0, 0.6, 3, '3d+3', -10),
-                ('III', 6, 5, 7.5, 0, 0, 3, '3d+1', -10),
-                ('V', 3.0, 3.1, 4.7, 0, 0, 5, '3d-1', -9),
+            "A": [
+                ("Ia", 30, 200, 300, 4.0, 0.6, 3, "3d+3", -10),
+                ("III", 6, 5, 7.5, 0, 0, 3, "3d+1", -10),
+                ("V", 3.0, 3.1, 4.7, 0, 0, 5, "3d-1", -9),
             ],
-            'F': [
-                ('Ia', 15, 200, 300, 4.0, 0.8, 4, '3d+3', -10),
-                ('V', 1.9, 1.6, 2.4, 0, 0, 13, '3d-1', -8),
+            "F": [
+                ("Ia", 15, 200, 300, 4.0, 0.8, 4, "3d+3", -10),
+                ("V", 1.9, 1.6, 2.4, 0, 0, 13, "3d-1", -8),
             ],
-            'G': [
-                ('Ia', 12, 160, 240, 3.1, 1.4, 6, '3d+3', -10),
-                ('V', 1.1, 0.8, 1.2, 0, 0, 16, '3d-2', 0),
-                ('VI', 0.8, 0.5, 0.8, 0, 0, 16, '2d+1', 1),
+            "G": [
+                ("Ia", 12, 160, 240, 3.1, 1.4, 6, "3d+3", -10),
+                ("V", 1.1, 0.8, 1.2, 0, 0, 16, "3d-2", 0),
+                ("VI", 0.8, 0.5, 0.8, 0, 0, 16, "2d+1", 1),
             ],
-            'K': [
-                ('Ia', 15, 125, 190, 2.5, 3.0, 10, '3d+2', -10),
-                ('V', 0.9, 0.5, 0.6, 0, 0, 16, '3d-2', 0),
-                ('VI', 0.5, 0.2, 0.3, 0, 0, 16, '2d+1', 1),
+            "K": [
+                ("Ia", 15, 125, 190, 2.5, 3.0, 10, "3d+2", -10),
+                ("V", 0.9, 0.5, 0.6, 0, 0, 16, "3d-2", 0),
+                ("VI", 0.5, 0.2, 0.3, 0, 0, 16, "2d+1", 1),
             ],
-            'M': [
-                ('Ia', 20, 100, 150, 2, 7, 16, '3d', -10),
-                ('Ib', 16, 50, 76, 1, 4.2, 16, '3d', -10),
-                ('II', 8, 16, 24, 0.3, 1.1, 16, '3d', -9),
-                ('III', 4, 5, 7.5, 0.1, 0.3, 16, '3d', -6),
-                ('V', 0.3, 0.1, 0.2, 0, 0, 16, '3d-2', +1),
-                ('VI', 0.2, 0.1, 0.1, 0, 0, 16, '2d+2', +2),
+            "M": [
+                ("Ia", 20, 100, 150, 2, 7, 16, "3d", -10),
+                ("Ib", 16, 50, 76, 1, 4.2, 16, "3d", -10),
+                ("II", 8, 16, 24, 0.3, 1.1, 16, "3d", -9),
+                ("III", 4, 5, 7.5, 0.1, 0.3, 16, "3d", -6),
+                ("V", 0.3, 0.1, 0.2, 0, 0, 16, "3d-2", +1),
+                ("VI", 0.2, 0.1, 0.1, 0, 0, 16, "2d+2", +2),
             ],
-            'D': [],
+            "D": [],
         }
-        if startype == 'D':   # Ignore for now
+        if startype == "D":  # Ignore for now
             return None
 
         if startype not in orbitData:
@@ -205,7 +206,7 @@ class Star(bobj.BaseObj):
                 return ("K", "Orange", "V")
             else:
                 return ("M", "Red", "V")
-        else:       # Giant star
+        else:  # Giant star
             y = self.d6(3)
             if y == 3:
                 z = self.d6(1)
@@ -219,5 +220,6 @@ class Star(bobj.BaseObj):
                 return self.genGiantType("Giant", "III")
             else:
                 return self.genGiantType("Subgiant", "IV")
+
 
 # EOF

@@ -5,7 +5,7 @@ from collections import defaultdict
 
 ##########################################################################
 class Planet(BaseObj):
-    def __init__(self, plantype, loc, orbit, atmosphere='normal'):
+    def __init__(self, plantype, loc, orbit, atmosphere="normal"):
         self.plantype = plantype
         self.location = loc
         self.maxdist = 0
@@ -19,17 +19,17 @@ class Planet(BaseObj):
         self.population = 0
         self.popcapacity = 0
         self.launches = defaultdict(int)
-        if plantype == 'terrestrial':
+        if plantype == "terrestrial":
             self.genTerrestrial()
-        elif plantype == 'gasgiant':
+        elif plantype == "gasgiant":
             self.genGasgiant()
-        elif plantype == 'asteroid':
+        elif plantype == "asteroid":
             self.genAsteroid()
-        elif plantype == 'rockball':
+        elif plantype == "rockball":
             self.genRockball()
-        elif plantype == 'browndwarf':
+        elif plantype == "browndwarf":
             self.genBrowndwarf()
-        elif plantype == 'greenhouse':
+        elif plantype == "greenhouse":
             self.genGreenhouse()
         else:
             sys.stderr.write("Unhandled planettype %s\n" % plantype)
@@ -44,7 +44,7 @@ class Planet(BaseObj):
 
     ##########################################################################
     def Plot(self, surf):
-        print "Plot(planet)"
+        print("Plot(planet)")
         pass
 
     ##########################################################################
@@ -102,6 +102,12 @@ class Planet(BaseObj):
             planstr = "Population: %s" % self.population
         else:
             planstr = "Empty"
-        return "<Planet %s: %s, Orbit %s %s>" % (self.plantype, repr(self.location), self.orbit, planstr)
+        return "<Planet %s: %s, Orbit %s %s>" % (
+            self.plantype,
+            repr(self.location),
+            self.orbit,
+            planstr,
+        )
+
 
 # EOF
