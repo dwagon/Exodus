@@ -14,7 +14,7 @@ white = 255, 255, 255
 class StarSystem(bobj.BaseObj):
     def __init__(self, loc):
         self.numstars = self.genStarNum()
-        self.numstars = 1             # Keep it simple
+        self.numstars = 1  # Keep it simple
         self.location = loc
         self.starlist = []
         for i in range(self.numstars):
@@ -44,13 +44,13 @@ class StarSystem(bobj.BaseObj):
             color = blue
         else:
             color = red
-        if pop > 1E9:
+        if pop > 1e9:
             radius = 6
-        elif pop > 1E8:
+        elif pop > 1e8:
             radius = 5
-        elif pop > 1E7:
+        elif pop > 1e7:
             radius = 4
-        elif pop > 1E6:
+        elif pop > 1e6:
             radius = 3
         else:
             radius = 2
@@ -82,6 +82,7 @@ class StarSystem(bobj.BaseObj):
         elif x == 12:
             return 3
         else:
-            print "x=%d" % x
+            print("x=%d" % x)
+
 
 # EOF

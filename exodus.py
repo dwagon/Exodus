@@ -44,7 +44,7 @@ class Game(bobj.BaseObj):
                 if shp.currplanet != shp.destination:
                     shp.move()
                 else:
-                    if shp.destination.plantype == 'gasgiant':
+                    if shp.destination.plantype == "gasgiant":
                         dest = shp.determine_destination()
                         if not dest:
                             self.abandoned += shp.cargo
@@ -83,11 +83,12 @@ class Game(bobj.BaseObj):
         for plnt in self.galaxy.terrestrials:
             if plnt.population > 0:
                 plnt.maxdist = int(
-                    min((self.year - plnt.settledate) / 20, 50) +
-                    min((self.year - plnt.settledate) / 40, 50) +
-                    min((self.year - plnt.settledate) / 80, 50) +
-                    min((plnt.population / 1E9), 20) +
-                    (self.year - plnt.settledate) / 200)
+                    min((self.year - plnt.settledate) / 20, 50)
+                    + min((self.year - plnt.settledate) / 40, 50)
+                    + min((self.year - plnt.settledate) / 80, 50)
+                    + min((plnt.population / 1e9), 20)
+                    + (self.year - plnt.settledate) / 200
+                )
                 totpop += plnt.population
                 populated += 1
                 if plnt.homeplanet:
@@ -99,7 +100,7 @@ class Game(bobj.BaseObj):
                 self.buildShip(plnt, Coloniser)
             if plnt.popcapacity > 0:
                 popcap += 1
-        if populated == popcap:       # 100% colonised
+        if populated == popcap:  # 100% colonised
             time.sleep(30)
         self.year += 1
 
@@ -137,14 +138,14 @@ class Game(bobj.BaseObj):
                 "Dead: %s" % self.humanise(self.abandoned),
             ],
             [
-                "Liners: %d" % len(self.ships['Liner']),
-                "Colonisers: %d" % len(self.ships['Coloniser']),
-            ]
+                "Liners: %d" % len(self.ships["Liner"]),
+                "Colonisers: %d" % len(self.ships["Coloniser"]),
+            ],
         ]
         count = 1
         for tp in toprint:
             text = font.render(" ".join(tp), 1, white)
-            textpos = text.get_rect(centerx=surf.get_width() / 2, centery=count*20)
+            textpos = text.get_rect(centerx=surf.get_width() / 2, centery=count * 20)
             surf.blit(text, textpos)
             count += 1
 
@@ -153,15 +154,20 @@ class Game(bobj.BaseObj):
                 count = 5
                 st = "Star %s" % s.stardesc
                 text = font.render(st, 1, white)
-                textpos = text.get_rect(left=0, centery=count*20)
+                textpos = text.get_rect(left=0, centery=count * 20)
                 surf.blit(text, textpos)
                 count += 1
                 for p in s.planets():
                     st = "Orbit %d %s " % (p.orbit, p.plantype)
                     if p.popcapacity:
-                        st += "Pop: %s/%s (%s) %s" % (self.humanise(p.population), self.humanise(p.popcapacity), p.settledate, p.launchstr())
+                        st += "Pop: %s/%s (%s) %s" % (
+                            self.humanise(p.population),
+                            self.humanise(p.popcapacity),
+                            p.settledate,
+                            p.launchstr(),
+                        )
                     text = font.render(st, 1, white)
-                    textpos = text.get_rect(left=0, centery=count*20)
+                    textpos = text.get_rect(left=0, centery=count * 20)
                     count += 1
                     surf.blit(text, textpos)
                     if p.maxdist > 5:
@@ -184,7 +190,7 @@ def main():
     game = Game()
     stsys = None
     try:
-        while(1):
+        while 1:
             game.endOfYear()
             for i in range(12):
                 for event in pygame.event.get():
@@ -197,11 +203,12 @@ def main():
     except KeyboardInterrupt:
         return
 
+
 ##########################################################################
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "v", [])
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
         sys.stderr.write("Error: %s\n" % str(err))
         usage()
         sys.exit(1)

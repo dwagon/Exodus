@@ -12,11 +12,11 @@ class BaseObj(object):
     def dice(self, strng):
         if not strng:
             return 0
-        reg = re.match('(?P<numdice>\d+)d(?P<modif>.*)', strng)
+        reg = re.match("(?P<numdice>\d+)d(?P<modif>.*)", strng)
         if reg:
-            numdice = int(reg.group('numdice'))
+            numdice = int(reg.group("numdice"))
             val = self.d6(numdice)
-            return eval("%d%s" % (val, reg.group('modif')))
+            return eval("%d%s" % (val, reg.group("modif")))
         else:
             sys.stderr.write("No idea how to handle %s\n" % strng)
             sys.exit(0)
@@ -30,13 +30,13 @@ class BaseObj(object):
 
     ##########################################################################
     def humanise(self, num):
-        """ Convert a number to something human readable """
-        if num > 1E9:
-            return "%0.2fB" % (num / 1E9)
-        if num > 1E6:
-            return "%0.2fM" % (num / 1E6)
-        if num > 1E3:
-            return "%0.2fK" % (num / 1E3)
+        """Convert a number to something human readable"""
+        if num > 1e9:
+            return "%0.2fB" % (num / 1e9)
+        if num > 1e6:
+            return "%0.2fM" % (num / 1e6)
+        if num > 1e3:
+            return "%0.2fK" % (num / 1e3)
         return "%d" % num
 
 

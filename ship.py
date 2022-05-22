@@ -21,7 +21,7 @@ class Ship(BaseObj):
 
     ##########################################################################
     def nearestEmptyTerrestrial(self):
-        """ Return distance to nearest terrestrial planet that is unpopulated """
+        """Return distance to nearest terrestrial planet that is unpopulated"""
         nearest = 999999
         for plnt in self.galaxy.terrestrials:
             if plnt.population:
@@ -37,9 +37,18 @@ class Ship(BaseObj):
     ##########################################################################
     def __repr__(self):
         if self.destination:
-            return "<Ship %s at %s going to %s cargo: %s>" % (self.name, self.location, self.destination.location, self.cargo)
+            return "<Ship %s at %s going to %s cargo: %s>" % (
+                self.name,
+                self.location,
+                self.destination.location,
+                self.cargo,
+            )
         else:
-            return "<Ship %s at %s going nowhere cargo: %s>" % (self.name, self.location, self.cargo)
+            return "<Ship %s at %s going nowhere cargo: %s>" % (
+                self.name,
+                self.location,
+                self.cargo,
+            )
 
     ##########################################################################
     def has_destination(self):
@@ -78,5 +87,6 @@ class Ship(BaseObj):
             return self.destination
         else:
             self.destination = loc
+
 
 # EOF

@@ -8,22 +8,26 @@ class Liner(Ship):
     def __init__(self, startplanet, galaxy):
         Ship.__init__(self, startplanet, galaxy)
         self.speed = 3
-        self.color = 255, 0, 255    # Purple
+        self.color = 255, 0, 255  # Purple
         self.maxdist = startplanet.maxdist + self.d6()
-        self.cargosize = 1E6 * self.d6()
+        self.cargosize = 1e6 * self.d6()
 
     ##########################################################################
     def doSpawn(self):
         plnt = self.startplanet
         if plnt.population / plnt.popcapacity < 0.5:
             return False
-        if (plnt.population >= 1E9 and self.d6() == 6) or (plnt.population >= 1E8 and self.d6(2) > 10) or (plnt.population >= 1E7 and self.d6(2) == 12):
+        if (
+            (plnt.population >= 1e9 and self.d6() == 6)
+            or (plnt.population >= 1e8 and self.d6(2) > 10)
+            or (plnt.population >= 1e7 and self.d6(2) == 12)
+        ):
             return True
         return False
 
     ##########################################################################
     def determine_destination(self):
-        """ Liners can only go to colonised planets """
+        """Liners can only go to colonised planets"""
         closestbest = 0.0
         best = None
         for plnt in self.galaxy.terrestrials:
@@ -39,7 +43,7 @@ class Liner(Ship):
                 continue
 
             desire = 100 - int(100.0 * plnt.population / plnt.popcapacity)
-            if desire < 5:     # Don't colonise full planets
+            if desire < 5:  # Don't colonise full planets
                 continue
             distance = self.location.distance(plnt.location)
             if distance > self.maxdist:
@@ -55,5 +59,6 @@ class Liner(Ship):
                 closestbest = pull
         self.destination = best
         return best
+
 
 # EOF

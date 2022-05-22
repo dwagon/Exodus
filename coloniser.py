@@ -11,18 +11,18 @@ class Coloniser(Ship):
         self.speed = 1
         self.color = 255, 255, 255  # White
         self.maxdist = startplanet.maxdist + self.d6(2)
-        self.cargosize = 1E4
+        self.cargosize = 1e4
         self.visited = [startplanet.location]
 
     ##########################################################################
     def doSpawn(self):
         plnt = self.startplanet
         spawn = False
-        if plnt.population >= 1E9 and self.d6(2) > 8:
+        if plnt.population >= 1e9 and self.d6(2) > 8:
             spawn = True
-        elif plnt.population >= 1E8 and self.d6(2) > 10:
+        elif plnt.population >= 1e8 and self.d6(2) > 10:
             spawn = True
-        elif plnt.population >= 1E7 and self.d6(2) == 12:
+        elif plnt.population >= 1e7 and self.d6(2) == 12:
             spawn = True
         else:
             return False
@@ -44,7 +44,7 @@ class Coloniser(Ship):
 
     ##########################################################################
     def determine_destination(self):
-        """ Colonisers can't go to populated planets """
+        """Colonisers can't go to populated planets"""
         closestbest = 0.0
         best = None
         for plnt in self.galaxy.terrestrials:
@@ -100,5 +100,6 @@ class Coloniser(Ship):
         if best:
             self.visited.append(best.location)
         return best
+
 
 # EOF
